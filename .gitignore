@@ -1,0 +1,4 @@
+tools/sources/
+*.pkl
+cat_raw*.glb
+__pycache__/

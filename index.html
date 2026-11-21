@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Atlas 3D du chat</title>
+<style>
+  :root{--bg:#14161b;--panel:rgba(28,31,38,.95);--txt:#eef0f3;--mut:#9aa3ad;--line:rgba(255,255,255,.1)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;touch-action:none}
+  header{position:fixed;top:0;left:0;right:0;padding:10px 14px 8px;background:linear-gradient(var(--bg),rgba(20,22,27,0));pointer-events:none;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  h1{font-size:17px;margin:0;font-weight:650}
+  header small{display:block;color:var(--mut);font-size:11.5px;margin-top:2px}
+  #infoBtn{pointer-events:auto;background:#20242c;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 11px;font-size:13px;cursor:pointer;flex:0 0 auto}
+  #bottom{position:fixed;left:0;right:0;bottom:0;padding:8px 10px 12px;background:linear-gradient(rgba(20,22,27,0),var(--bg) 35%)}
+  #chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+  #chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#20242c;color:var(--txt);border-radius:999px;padding:8px 12px;font-size:13.5px;display:flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+  .chip .dot{width:10px;height:10px;border-radius:50%}
+  .chip.off{opacity:.45}.chip.off .dot{background:transparent!important;border:1.5px solid var(--mut)}
+  .chip .st{font-size:11px;color:var(--mut)}
+  #hint{font-size:11.5px;color:var(--mut);margin:6px 2px 0}
+  #card{position:fixed;left:10px;right:10px;bottom:96px;max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:none;backdrop-filter:blur(6px)}
+  #card.show{display:block}
+  #card h2{margin:0;font-size:17px;padding-right:24px}
+  #card .la{font-style:italic;color:var(--mut);font-size:13.5px;margin:2px 0 6px}
+  #card .sys{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;margin-bottom:6px;color:#111;font-weight:600}
+  #card p{margin:0;font-size:14px;line-height:1.45}
+  #card .x,#credits .x{position:absolute;top:6px;right:8px;background:none;border:0;color:var(--mut);font-size:22px;cursor:pointer;padding:4px 8px}
+  #list{position:fixed;top:0;right:0;bottom:0;width:min(330px,88vw);background:var(--panel);border-left:1px solid var(--line);transform:translateX(105%);transition:transform .25s;overflow-y:auto;padding:14px 12px 30px;z-index:5}
+  #list.open{transform:none}
+  #list h3{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:16px 4px 6px}
+  #list button.it{display:block;width:100%;text-align:left;background:none;border:0;color:var(--txt);padding:7px 6px;border-radius:8px;font-size:14px;cursor:pointer}
+  #list button.it small{color:var(--mut);font-style:italic;margin-left:4px}
+  #list button.it:hover,#list button.it.sel{background:rgba(255,255,255,.07)}
+  #list .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  #list .top b{font-size:15px}
+  #list .top button{background:none;border:0;color:var(--mut);font-size:22px;cursor:pointer}
+  #q{width:100%;margin-top:10px;background:#1b1e25;border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:9px 10px;font-size:14px}
+  #credits{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:10;align-items:center;justify-content:center;padding:16px}
+  #credits.show{display:flex}
+  #credits .box{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;max-width:520px;max-height:85vh;overflow:auto;font-size:13.5px;line-height:1.5}
+  #credits h2{font-size:16px;margin:0 0 8px}
+  #credits h3{font-size:13px;margin:14px 0 4px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+  #credits a{color:#7cc4ff}
+  #credits ul{padding-left:18px;margin:4px 0}
+  .warn{color:#ffd58a}
+  #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:14px;pointer-events:none}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/","three-mesh-bvh":"https://cdn.jsdelivr.net/npm/three-mesh-bvh@0.7.6/build/index.module.js"}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="load">Chargement du modèle…</div>
+<header>
+  <div><h1>Atlas 3D du chat</h1><small>Version de travail · identifications à valider · <a href="https://github.com/rodtrip2/atlas-chat" style="color:#7cc4ff;pointer-events:auto">code source</a></small></div>
+  <button id="infoBtn">ⓘ Sources</button>
+</header>
+
+<div id="card"><button class="x" id="cx" aria-label="Fermer">×</button><h2 id="cn"></h2><div class="la" id="cl"></div><span class="sys" id="cs"></span><p id="cd"></p></div>
+
+<aside id="list"><div class="top"><b>Structures</b><button id="lx" aria-label="Fermer">×</button></div>
+  <input id="q" type="search" placeholder="Rechercher (ex. fémur, T5, foie)…"><div id="lb"></div></aside>
+
+<div id="credits"><div class="box"><button class="x" id="crx" aria-label="Fermer">×</button>
+  <h2>Sources et avertissements</h2>
+  <p class="warn">Version de travail. Les noms des os et les régions musculaires ont été attribués automatiquement d'après leur position : ils doivent être relus par un enseignant en anatomie avant tout usage pédagogique.</p>
+  <p class="warn">Les organes abdominaux proviennent du scanner d'un autre chat. Ils ont été mis à l'échelle et placés de façon approximative dans ce squelette.</p>
+  <p class="warn">Le cœur, les poumons, la trachée, l'œsophage, l'encéphale, les vaisseaux hors abdomen et les nerfs sont des reconstructions schématiques, ajustées sur les repères de ce squelette (canal vertébral relevé vertèbre par vertèbre, cage thoracique, cavité crânienne, axes des os des membres, surface du foie pour le diaphragme). Les vaisseaux et nerfs intercostaux suivent chaque côte réelle, les branches digitales suivent les phalanges réelles, et l'arbre bronchique et les vaisseaux pulmonaires ont été générés par croissance dans le volume des poumons. Leur trajet et leur forme restent approximatifs.</p>
+  <h3>Modèles 3D utilisés (licence CC BY 4.0)</h3>
+  <ul>
+    <li>« <a href="https://sketchfab.com/3d-models/feline-skeleton-dec-a5d0bb8f55dc4f49b103cd20d65e0b17">Feline Skeleton Dec</a> », par <a href="https://sketchfab.com/westerly">westerly</a></li>
+    <li>« <a href="https://sketchfab.com/3d-models/feline-ecorche-dec-4c08824eb4914ff4b6e71b4dc2ba080e">Feline Ecorche Dec</a> », par <a href="https://sketchfab.com/westerly">westerly</a></li>
+    <li>« <a href="https://sketchfab.com/3d-models/normal-feline-anatomy-digestive-system-ab92a2a9d9024447b0ed4c080ad17106">Normal Feline Anatomy – Digestive System</a> », par <a href="https://sketchfab.com/pixelbeaker">Pixelbeaker</a></li>
+  </ul>
+  <p>Signaler une erreur ou proposer une correction : <a href="https://github.com/rodtrip2/atlas-chat/issues">tickets GitHub</a>.</p>
+  <p>Licence des modèles : <a href="https://creativecommons.org/licenses/by/4.0/deed.fr">Creative Commons Attribution 4.0</a>. Modifications : géométrie simplifiée, structures séparées et nommées, organes abdominaux redimensionnés et repositionnés, peau du modèle digestif retirée, structures thoraciques, vaisseaux et nerfs ajoutés par reconstruction.</p>
+</div></div>
+
+<div id="bottom">
+  <div id="chips"></div>
+  <div id="hint">Glisser pour tourner · pincer pour zoomer · toucher une structure pour l'identifier</div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { computeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+// ---------- Nomenclature ----------
+const SIDE = {d:['droit','droite','dexter','dextra'], g:['gauche','gauche','sinister','sinistra']};
+const roman = n => ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'][n];
+const BONES = {
+  crane:['Crâne','Cranium',"Ensemble des os du crâne et de la face, soudés chez l'adulte (sauf la mandibule et les osselets). Le chat a de très grandes orbites, ouvertes en arrière."],
+  mandibule:['Mandibule','Mandibula',"Mâchoire inférieure. Ses deux moitiés sont unies par une symphyse fibreuse, qui peut se disjoindre lors d'un traumatisme facial (chute)."],
+  dent:['Dents','Dentes',"Formule dentaire du chat adulte : I 3/3, C 1/1, P 3/2, M 1/1, soit 30 dents. La 4e prémolaire supérieure et la 1re molaire inférieure forment les carnassières."],
+  manubrium:['Manubrium du sternum','Manubrium sterni',"Première sternèbre, crâniale, sur laquelle s'articulent les premières côtes."],
+  sternebre:['Sternèbres','Sternebrae',"Segments osseux du corps du sternum. Le sternum du chat compte 8 sternèbres au total, manubrium et processus xiphoïde compris."],
+  xiphoide:['Processus xiphoïde','Processus xiphoideus',"Dernière sternèbre, prolongée par le cartilage xiphoïdien, à la limite du thorax et de l'abdomen."],
+  sacrum:['Sacrum','Os sacrum',"Trois vertèbres sacrées soudées, articulées avec les ailes des ilium."],
+  coxal:['Os coxaux (bassin)','Ossa coxae',"Chaque os coxal est formé de l'ilium, de l'ischium et du pubis soudés. Les deux os coxaux, unis par la symphyse pelvienne, forment avec le sacrum la ceinture pelvienne."],
+  scapula:['Scapula','Scapula',"Os plat de l'épaule, maintenu au thorax uniquement par des muscles. La clavicule du chat est vestigiale, non articulée."],
+  humerus:['Humérus','Humerus',"Os du bras. Chez le chat, il présente un foramen supracondylaire où passent le nerf médian et l'artère brachiale."],
+  radius:['Radius','Radius',"Os de l'avant-bras, en position crâniale. Il peut tourner autour de l'ulna (pronation et supination), mouvement important chez le chat."],
+  ulna:['Ulna','Ulna',"Os de l'avant-bras, en position caudale. Son olécrâne forme la pointe du coude."],
+  carpe:['Os du carpe','Ossa carpi',"Petits os du poignet, disposés en deux rangées. L'os accessoire du carpe fait saillie vers l'arrière."],
+  metacarpe:['Métacarpiens','Ossa metacarpalia',"Cinq métacarpiens ; le premier, court, porte l'ergot (doigt I)."],
+  phal1_m:['Phalanges proximales (main)','Phalanges proximales',"Premières phalanges des doigts du membre thoracique."],
+  phal2_m:['Phalanges moyennes (main)','Phalanges mediae',"Deuxièmes phalanges des doigts du membre thoracique."],
+  phal3_m:['Phalanges distales (main)','Phalanges distales',"Troisièmes phalanges, qui portent les griffes rétractiles. C'est la phalange retirée lors d'un dégriffage (onyxectomie)."],
+  femur:['Fémur','Femur',"Os de la cuisse. Sa tête s'articule avec l'acétabulum de l'os coxal (articulation coxo-fémorale)."],
+  patella:['Patella','Patella',"Os sésamoïde du genou, dans le tendon du muscle quadriceps fémoral."],
+  tibia:['Tibia','Tibia',"Os principal de la jambe, en position médiale."],
+  fibula:['Fibula','Fibula',"Os fin de la jambe, longeant le tibia latéralement."],
+  talus:['Talus','Talus',"Os du tarse qui s'articule avec le tibia et la fibula (articulation tarso-crurale)."],
+  calcaneus:['Calcanéus','Calcaneus',"Os du tarse formant la pointe du jarret, où s'insère le tendon calcanéen commun."],
+  tarse:['Autres os du tarse','Ossa tarsi',"Os du tarse (cheville) autres que le talus et le calcanéus : os central, os tarsiens I à IV."],
+  metatarse:['Métatarsiens','Ossa metatarsalia',"Métatarsiens du pied ; le premier est généralement rudimentaire chez le chat."],
+  phal1_p:['Phalanges proximales (pied)','Phalanges proximales',"Premières phalanges des doigts du membre pelvien."],
+  phal2_p:['Phalanges moyennes (pied)','Phalanges mediae',"Deuxièmes phalanges des doigts du membre pelvien."],
+  phal3_p:['Phalanges distales (pied)','Phalanges distales',"Troisièmes phalanges, porteuses des griffes."],
+};
+const VERT = {C:['cervicale','cervicalis','Vertèbres cervicales : 7, comme chez tous les mammifères.'],T:['thoracique','thoracica','13 vertèbres thoraciques, chacune articulée avec une paire de côtes.'],L:['lombaire','lumbalis','7 vertèbres lombaires, longues et robustes ; leur souplesse explique la grande flexibilité dorsale du chat.'],Cd:['caudale','caudalis','Vertèbres caudales : une vingtaine selon les individus. Le modèle en compte 17.']};
+function boneInfo(id){
+  let side=null, base=id;
+  const m=id.match(/^(.*)_([dg])$/); if(m){ base=m[1]; side=m[2]; }
+  let fr,la,d,group;
+  const v=base.match(/^(C|T|L|Cd)(\d+)$/);
+  const r=base.match(/^cote(\d+)$/), c=base.match(/^cart(\d+)$/);
+  if (v){ const [w,lw,dd]=VERT[v[1]]; const n=+v[2];
+    fr=`Vertèbre ${w} ${v[1]}${n}`; la=`Vertebra ${lw} ${roman(n)}`; d=dd;
+    if(base==='C1'){fr='Atlas (C1)'; la='Atlas'; d="Première vertèbre cervicale, en forme d'anneau aux larges ailes. Elle porte le crâne et permet le « oui » de la tête.";}
+    if(base==='C2'){fr='Axis (C2)'; la='Axis'; d="Deuxième vertèbre cervicale. Sa dent (processus odontoïde) sert de pivot à l'atlas : rotation de la tête.";}
+    if(base==='T1') d+=" T1 porte la première paire de côtes ; son processus épineux est très haut.";
+    if(base==='T11') d+=" Chez le chat, T11 est en général la vertèbre anticlinale (processus épineux vertical).";
+    group = v[1]==='C'||v[1]==='T'||v[1]==='L'||v[1]==='Cd' ? 'Colonne vertébrale' : '';
+  } else if (r){ const n=+r[1]; fr=`Côte ${n}`; la=`Costa ${roman(n)}`;
+    d = n<=9 ? "Côte sternale : son cartilage s'articule directement avec le sternum." : (n===13 ? "Dernière côte, souvent flottante (son cartilage reste libre)." : "Côte asternale : son cartilage rejoint celui de la côte précédente pour former l'arc costal.");
+    group='Thorax';
+  } else if (c){ const n=+c[1]; fr=`Cartilage costal ${n}`; la=`Cartilago costalis ${roman(n)}`; d="Partie cartilagineuse, ventrale, de la côte. Elle donne au thorax son élasticité."; group='Thorax';
+  } else { const b=BONES[base]||[base,'','']; [fr,la,d]=b;
+    group = ['crane','mandibule','dent'].includes(base)?'Tête' : ['manubrium','sternebre','xiphoide'].includes(base)?'Thorax' : ['sacrum','coxal'].includes(base)?'Colonne vertébrale et bassin':
+      ['scapula','humerus','radius','ulna','carpe','metacarpe','phal1_m','phal2_m','phal3_m'].includes(base)?'Membre thoracique':'Membre pelvien';
+    if(base==='sacrum'||base==='coxal') group='Colonne vertébrale';
+  }
+  if (side){ const fem = /^(Côte|Scapula|Ulna|Patella|Fibula|Phalanges|Vertèbre)/.test(fr) || fr.startsWith('Côte');
+    fr += ' ' + (fem? SIDE[side][1] : SIDE[side][0]); la += ' ' + (/a$|ae$|is$/.test(la.split(' ')[0])? SIDE[side][3]:SIDE[side][2]); }
+  return {fr,la,d,sys:'Squelette',group};
+}
+const MUSC = {
+  tete:['Muscles de la tête','Musculi capitis',"Muscles de la face et de la mastication. Le muscle temporal et le masséter, très puissants chez le chat, ferment la mâchoire."],
+  cou:['Muscles du cou','Musculi colli',"Muscles qui soutiennent et mobilisent la tête et le cou (brachiocéphalique, sterno-céphalique, splénius…)."],
+  epaule:["Muscles de l'épaule",'Musculi omi',"Muscles qui relient le membre thoracique au tronc et mobilisent la scapula (trapèze, deltoïde, supra- et infra-épineux…)."],
+  membre_thor:['Muscles du membre thoracique','Musculi membri thoracici',"Muscles du bras, de l'avant-bras et de la main : extenseurs et fléchisseurs du coude, du carpe et des doigts."],
+  tronc:['Muscles du tronc','Musculi trunci',"Muscles du dos, du thorax et de la paroi abdominale (long dorsal, intercostaux, obliques, droit de l'abdomen…)."],
+  membre_pelv:['Muscles du membre pelvien','Musculi membri pelvini',"Muscles de la croupe, de la cuisse et de la jambe (fessiers, quadriceps, ischio-jambiers, gastrocnémien…), moteurs du saut."],
+  queue:['Muscles de la queue','Musculi caudae',"Muscles qui mobilisent la queue, impliquée dans l'équilibre et la communication."],
+};
+function muscleInfo(id){ const m=id.match(/^(.*?)(?:_([dg]))?$/); const [fr,la,d]=MUSC[m[1]]; const s=m[2];
+  return {fr: fr+(s?(' – côté '+SIDE[s][0]):''), la, d: d+" Dans cette version, les muscles sont regroupés par région et ne sont pas encore identifiés un par un.", sys:'Muscles', group:'Muscles'}; }
+const ORG = {
+  foie:['Foie','Hepar',"Plus gros organe interne, divisé en plusieurs lobes, avec une vésicule biliaire. Le chat est très exposé à la lipidose hépatique en cas de jeûne prolongé.",'#7a2a22'],
+  estomac:['Estomac','Gaster',"Estomac simple, situé surtout à gauche, en arrière du foie. Le modèle inclut aussi le haut du tube digestif.",'#e3b088'],
+  intestins:['Intestins','Intestinum tenue et crassum',"Intestin grêle (duodénum, jéjunum, iléon), court chez ce carnivore strict, puis gros intestin (caecum, côlon, rectum).",'#e9c49a'],
+  pancreas:['Pancréas','Pancreas',"Glande digestive et endocrine, en forme de V, le long du duodénum et de l'estomac. Chez le chat, son canal s'abouche souvent avec le canal cholédoque, d'où l'association fréquente de pancréatite, cholangite et entérite (« triadite »).",'#d9c46a'],
+  reins:['Reins','Renes',"Situés sous les vertèbres lombaires, le droit plus crânial que le gauche. L'insuffisance rénale chronique est très fréquente chez le chat âgé.",'#8e2b2b'],
+  vessie:['Vessie','Vesica urinaria',"Réservoir de l'urine, en partie dans le bassin. Le mâle est exposé aux obstructions urétrales (cystite idiopathique, calculs).",'#efd36a'],
+  vaisseaux_abdo:['Vaisseaux abdominaux','Vasa abdominalia',"Aorte abdominale, veine cave caudale et leurs branches viscérales (troncs cœliaque et mésentériques, artères et veines rénales…).",'#d8343c'],
+};
+function organInfo(id){ const [fr,la,d]=ORG[id]; const v=id==='vaisseaux_abdo'; return {fr,la,d:d+(v?" Vaisseaux issus d'un autre chat, placés ici de façon approximative.":" Organe issu d'un autre chat, placé ici de façon approximative."),sys:v?'Vaisseaux':'Organes',group:v?'Vaisseaux du tronc':'Organes abdominaux'}; }
+const RECON_NOTE=" Structure reconstruite de façon schématique et ajustée sur ce squelette : trajet, forme et dimensions sont approximatifs.";
+const A='#d23a40', VN='#3b66d6', NV='#f0d264', VT='Vaisseaux du tronc', VH='Vaisseaux de la tête et du cou', VM='Vaisseaux des membres', NC='Nerfs centraux et du tronc', NH='Nerfs de la tête', NM='Nerfs des membres', OT='Organes thoraciques';
+const REC = {
+  coeur:['o','Cœur','Cor',"Situé entre la 3e et la 6e côte environ, l'apex tourné vers le sternum et vers la gauche. La cardiomyopathie hypertrophique est la maladie cardiaque la plus fréquente du chat.",'#b8323c',OT],
+  poumon_g:['o','Poumon gauche','Pulmo sinister',"Deux lobes : crânial (divisé en parties crâniale et caudale) et caudal. Sa forme suit la cavité thoracique réelle de ce squelette, limitée en arrière par la surface du foie.",'#efa3ae',OT],
+  poumon_d:['o','Poumon droit','Pulmo dexter',"Quatre lobes : crânial, moyen, caudal et accessoire. Sa forme suit la cavité thoracique réelle de ce squelette, limitée en arrière par la surface du foie.",'#efa3ae',OT],
+  trachee:['o','Trachée','Trachea',"Anneaux cartilagineux ouverts dorsalement. Elle se divise en deux bronches principales (carène) vers la 5e–6e vertèbre thoracique.",'#eed6da',OT],
+  bronches:['o','Bronches principales','Bronchi principales',"Elles conduisent l'air de la carène vers chaque poumon.",'#eed6da',OT],
+  arbre_bronchique:['o','Arbre bronchique','Arbor bronchialis',"Bronches lobaires, segmentaires puis bronchioles. Ici, l'arbre a été généré par croissance dans le volume réel de chaque poumon : la ramification est réaliste dans son principe, pas dans le détail. L'asthme félin touche surtout les petites bronches.",'#f3e4d6',OT],
+  oesophage:['o','Œsophage','Oesophagus',"Dans le cou, il est dorsal et un peu à gauche de la trachée ; il traverse le thorax au-dessus du cœur puis le diaphragme pour rejoindre l'estomac.",'#e3ae8c',OT],
+  aorte:['v','Aorte (thoracique)','Aorta thoracica',"Aorte ascendante, crosse puis aorte descendante le long des corps vertébraux, prolongée par l'aorte abdominale.",A,VT],
+  tronc_bc:['v','Tronc brachiocéphalique','Truncus brachiocephalicus',"Première branche de la crosse aortique : il donne les carotides communes et l'artère subclavière droite.",A,VT],
+  tronc_pulm:['v','Tronc pulmonaire','Truncus pulmonalis',"Il part du ventricule droit et conduit le sang pauvre en oxygène vers les poumons.",VN,VT],
+  art_pulm:['v','Artères pulmonaires','Aa. pulmonales',"Elles suivent les bronches dans chaque poumon et apportent le sang pauvre en oxygène (en bleu par convention).",VN,VT],
+  v_pulm:['v','Veines pulmonaires','Vv. pulmonales',"Elles ramènent le sang oxygéné des poumons vers l'atrium gauche (en rouge par convention).",A,VT],
+  coronaires:['v','Artères coronaires','Aa. coronariae',"Elles irriguent le muscle cardiaque. Chez le chat, l'artère coronaire gauche est dominante : elle donne le rameau interventriculaire paraconal et le rameau circonflexe.",A,VT],
+  vcr:['v','Veine cave crâniale','V. cava cranialis',"Elle ramène au cœur le sang de la tête, du cou et des membres thoraciques.",VN,VT],
+  vcc_thor:['v','Veine cave caudale (partie thoracique)','V. cava caudalis',"Elle traverse le diaphragme et rejoint l'atrium droit.",VN,VT],
+  azygos:['v','Veine azygos droite','V. azygos dextra',"Elle longe les corps vertébraux thoraciques à droite, collecte les veines intercostales et rejoint la veine cave crâniale.",VN,VT],
+  art_intercost:['v','Artères intercostales','Aa. intercostales',"Une par espace intercostal, issues de l'aorte. Tracées ici le long du bord caudal de chaque côte réelle du squelette.",A,VT],
+  v_intercost:['v','Veines intercostales','Vv. intercostales',"Elles accompagnent les artères au bord caudal des côtes et rejoignent la veine azygos.",VN,VT],
+  art_thor_int:['v','Artère thoracique interne','A. thoracica interna',"Elle longe la face interne du sternum, puis se prolonge dans la paroi abdominale (artère épigastrique crâniale).",A,VT],
+  v_thor_int:['v','Veine thoracique interne','V. thoracica interna',"Satellite de l'artère, le long de la face interne du sternum.",VN,VT],
+  art_lomb:['v','Artères lombaires','Aa. lumbales',"Branches segmentaires de l'aorte abdominale, vers les muscles du dos.",A,VT],
+  carotide:['v','Artère carotide commune','A. carotis communis',"Elle remonte le long de la trachée. Chez le chat adulte, l'artère carotide interne s'oblitère : l'encéphale est irrigué surtout par l'artère maxillaire.",A,VH],
+  art_faciale:['v','Artère faciale','A. facialis',"Elle contourne le bord ventral de la mandibule et monte sur la face.",A,VH],
+  art_linguale:['v','Artère linguale','A. lingualis',"Elle irrigue la langue, entre les deux moitiés de la mandibule.",A,VH],
+  art_maxillaire:['v','Artère maxillaire','A. maxillaris',"Branche profonde de la carotide externe ; chez le chat, elle forme le réseau admirable qui irrigue l'encéphale, et se termine par l'artère infra-orbitaire.",A,VH],
+  art_temporale:['v','Artère temporale superficielle','A. temporalis superficialis',"Elle monte en avant de l'oreille vers le front.",A,VH],
+  jugulaire:['v','Veine jugulaire externe','V. jugularis externa',"Veine superficielle du cou, utilisée pour les prises de sang chez le chat.",VN,VH],
+  v_linguofaciale:['v','Veine linguofaciale','V. linguofacialis',"Elle draine la face et la langue ; elle rejoint la veine maxillaire près de l'angle de la mandibule pour former la jugulaire externe.",VN,VH],
+  v_maxillaire:['v','Veine maxillaire','V. maxillaris',"Elle draine la région profonde de la tête et rejoint la jugulaire externe.",VN,VH],
+  art_mt:['v','Artères du membre thoracique','Aa. subclavia, axillaris, brachialis, mediana',"Artère subclavière, puis axillaire, brachiale (face médiale du bras) et médiane (avant-bras).",A,VM],
+  art_brach_prof:['v','Artère brachiale profonde','A. profunda brachii',"Elle part de l'artère brachiale vers le muscle triceps.",A,VM],
+  art_coll_ulnaire:['v','Artère collatérale ulnaire','A. collateralis ulnaris',"Elle passe derrière le coude, vers la face caudale de l'avant-bras.",A,VM],
+  art_brach_sup:['v','Artère brachiale superficielle','A. brachialis superficialis',"Elle descend sur la face crâniale de l'avant-bras, près de la veine céphalique.",A,VM],
+  v_brachiale:['v','Veine brachiale','V. brachialis',"Veine profonde satellite de l'artère brachiale.",VN,VM],
+  v_mediane_cub:['v','Veine médiane du coude','V. mediana cubiti',"Elle relie la veine céphalique à la veine brachiale à la face médiale du coude.",VN,VM],
+  cephalique:['v','Veine céphalique','V. cephalica',"Face crâniale de l'avant-bras : site habituel de pose de cathéter et de prise de sang.",VN,VM],
+  art_digit_mt:['v','Artères digitales (main)','Aa. digitales palmares',"Une branche jusqu'à chaque doigt, tracée d'après les phalanges réelles du squelette.",A,VM],
+  art_mp:['v','Artères du membre pelvien','Aa. femoralis, poplitea',"Artère fémorale à la face médiale de la cuisse (pouls fémoral), puis artère poplitée derrière le genou.",A,VM],
+  art_fem_prof:['v','Artère fémorale profonde','A. profunda femoris',"Elle irrigue les muscles de la face caudale et médiale de la cuisse.",A,VM],
+  art_saphene:['v','Artère saphène','A. saphena',"Chez le chat, elle naît de l'artère fémorale et descend à la face médiale de la jambe, avec la veine saphène médiale.",A,VM],
+  art_tib_cran:['v','Artère tibiale crâniale','A. tibialis cranialis',"Branche de l'artère poplitée qui passe à la face crâniale de la jambe et se prolonge sur le dos du pied.",A,VM],
+  v_femorale:['v','Veine fémorale','V. femoralis',"Veine profonde satellite de l'artère fémorale.",VN,VM],
+  saphene:['v','Veine saphène médiale','V. saphena medialis',"Face médiale de la jambe : site de prélèvement sanguin fréquent chez le chat.",VN,VM],
+  v_saphene_lat:['v','Veine saphène latérale','V. saphena lateralis',"Face latérale de la jambe, au-dessus du jarret ; autre site possible de prélèvement.",VN,VM],
+  art_digit_mp:['v','Artères digitales (pied)','Aa. digitales plantares',"Une branche jusqu'à chaque doigt, tracée d'après les phalanges réelles du squelette.",A,VM],
+  encephale:['n','Encéphale','Encephalon',"Cerveau, cervelet et tronc cérébral, ajusté à la cavité crânienne de ce squelette.",'#e8a6b4',NC],
+  moelle:['n','Moelle épinière','Medulla spinalis',"Elle suit le canal vertébral, relevé vertèbre par vertèbre sur ce squelette. Chez le chat, elle descend jusque vers L7–S1.",NV,NC],
+  n_spinaux:['n','Nerfs spinaux','Nn. spinales',"Une paire par segment de la moelle ; chacun se divise en rameaux dorsal (muscles et peau du dos) et ventral.",NV,NC],
+  n_intercost:['n','Nerfs intercostaux','Nn. intercostales',"Rameaux ventraux des nerfs thoraciques, au bord caudal de chaque côte, sous l'artère et la veine.",NV,NC],
+  sympathique:['n','Tronc sympathique','Truncus sympathicus',"Chaîne de ganglions le long des corps vertébraux ; le gros ganglion crânial est le ganglion cervicothoracique (stellaire). Dans le cou, il chemine avec le nerf vague.",NV,NC],
+  vague:['n','Nerf vague','N. vagus (X)',"Il descend le long de la carotide, traverse le thorax puis accompagne l'œsophage jusqu'à l'estomac. Principal nerf parasympathique.",NV,NC],
+  phrenique:['n','Nerf phrénique','N. phrenicus',"Issu de C5 à C7, il innerve le diaphragme.",NV,NC],
+  n_facial:['n','Nerf facial','N. facialis (VII)',"Il sort derrière la mandibule et se divise en rameaux buccaux et auriculopalpébral : muscles de la face, des lèvres, des paupières et des oreilles.",NV,NH],
+  n_infraorbitaire:['n','Nerf infra-orbitaire','N. infraorbitalis (V2)',"Branche du nerf trijumeau qui sort sous l'œil et innerve la lèvre supérieure et le coussinet des vibrisses (moustaches).",NV,NH],
+  n_optique:['n','Nerf optique','N. opticus (II)',"Il relie la rétine à l'encéphale.",NV,NH],
+  n_alveolaire:['n','Nerf alvéolaire inférieur','N. alveolaris inferior (V3)',"Il parcourt la mandibule (sensibilité des dents inférieures) et sort par les foramens mentonniers.",NV,NH],
+  n_hypoglosse:['n','Nerf hypoglosse','N. hypoglossus (XII)',"Nerf moteur de la langue.",NV,NH],
+  n_lingual:['n','Nerf lingual','N. lingualis (V3)',"Sensibilité de la langue.",NV,NH],
+  plexus:['n','Plexus brachial','Plexus brachialis',"Formé par les rameaux ventraux de C6 à T1 ; il innerve le membre thoracique.",NV,NM],
+  radial:['n','Nerf radial','N. radialis',"Extenseurs du coude, du carpe et des doigts. Sa paralysie empêche l'appui.",NV,NM],
+  median:['n','Nerf médian','N. medianus',"Il longe l'artère brachiale puis innerve des fléchisseurs du carpe et des doigts.",NV,NM],
+  ulnaire:['n','Nerf ulnaire','N. ulnaris',"Il passe derrière le coude, près de l'olécrâne.",NV,NM],
+  n_digit_mt:['n','Nerfs digitaux (main)','Nn. digitales palmares',"Une branche jusqu'à chaque doigt, tracée d'après les phalanges réelles.",NV,NM],
+  sciatique:['n','Nerf sciatique et nerf tibial','N. ischiadicus, N. tibialis',"Le plus gros nerf du corps, issu de L6 à S1, derrière le fémur. Il peut être lésé par une injection intramusculaire mal placée dans la face caudale de la cuisse.",NV,NM],
+  fibulaire:['n','Nerf fibulaire commun','N. fibularis communis',"Il contourne la fibula latéralement : flexion du tarse, extension des doigts.",NV,NM],
+  femoral:['n','Nerf fémoral','N. femoralis',"Issu de L4 à L6, il innerve le quadriceps : extension du genou et appui.",NV,NM],
+  n_digit_mp:['n','Nerfs digitaux (pied)','Nn. digitales plantares',"Une branche jusqu'à chaque doigt, tracée d'après les phalanges réelles.",NV,NM],
+};
+function recInfo(id){ let r=REC[id], sd=null, base=id; if(!r){ const m=id.match(/^(.*?)_([dg])$/); base=m[1]; sd=m[2]; r=REC[base]; }
+  let fr=r[1]; if(sd){ fr = /^(Veine |Artère )/.test(fr) && !fr.includes('(') ? fr+' '+SIDE[sd][1] : fr+' – côté '+SIDE[sd][0]; }
+  return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs'}[r[0]],group:r[5],color:r[4]}; }
+const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b'};
+
+// ---------- Scène ----------
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true}); renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene(); scene.background=new THREE.Color('#14161b');
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+scene.environment=new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(),0.04).texture;
+const camera=new THREE.PerspectiveCamera(38,1,0.01,60);
+const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.minDistance=0.3; controls.maxDistance=14;
+scene.add(new THREE.HemisphereLight(0xffffff,0x3a3a48,0.45));
+const d1=new THREE.DirectionalLight(0xffffff,1.2); d1.position.set(3,4,2); scene.add(d1);
+const d2=new THREE.DirectionalLight(0xffffff,.6); d2.position.set(-3,1,-3); scene.add(d2);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(2.6,64),new THREE.MeshBasicMaterial({color:0x1b1e25})); floor.rotation.x=-Math.PI/2; floor.position.y=-1.05; scene.add(floor);
+
+const LAYERS={
+  b:{label:'Squelette',color:'#e9e1c9',state:2,tri:.22,group:new THREE.Group()},
+  m:{label:'Muscles',color:'#d0645a',state:1,tri:.28,group:new THREE.Group()},
+  o:{label:'Organes',color:'#e3a37a',state:2,tri:.3,group:new THREE.Group()},
+  v:{label:'Vaisseaux',color:'#e5484d',state:2,group:new THREE.Group()},
+  n:{label:'Nerfs',color:'#f2d24b',state:2,group:new THREE.Group()},
+};
+for(const k in LAYERS) scene.add(LAYERS[k].group);
+const meshes=[], byId={}, infoById={};
+const boneMat=()=>new THREE.MeshStandardMaterial({color:0xe9e1c9,roughness:.6});
+const muscMat=new Map();
+
+function layerApply(k){
+  const L=LAYERS[k]; L.group.visible=L.state>0;
+  if(L.tri) L.group.traverse(o=>{ if(o.isMesh){ const t=L.state===1; o.material.transparent=t||o.userData.tr; o.material.opacity=t?Math.min(L.tri,o.userData.op??1):(o.userData.op??1); o.material.depthWrite=!(t||o.userData.tr); o.material.needsUpdate=true; }});
+  L.btn.classList.toggle('off',L.state===0);
+  L.btn.querySelector('.st').textContent = L.tri ? ['masqués','transparents','opaques'][L.state].replace(/s$/, k==='b'?'':'s') : '';
+}
+
+const loader=new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
+const QUAL={standard:{url:'models/atlas-standard.glb',label:'Standard'},hd:{url:'models/atlas-hd.glb',label:'HD'}};
+let quality=(()=>{ try{ const q=localStorage.getItem('atlas-q'); if(q&&QUAL[q]) return q; }catch(e){} return (matchMedia('(pointer:fine)').matches && innerWidth>900)?'hd':'standard'; })();
+let firstLoad=true, loadToken=0;
+function loadModel(q){
+  const tok=++loadToken; select(null);
+  let ld=document.getElementById('load'); if(!ld){ ld=document.createElement('div'); ld.id='load'; document.body.appendChild(ld); }
+  ld.textContent='Chargement du modèle ('+QUAL[q].label+')…';
+  loader.load(QUAL[q].url, g=>{
+    if(tok!==loadToken) return;
+    for(const o of meshes){ o.parent&&o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); }
+    meshes.length=0; for(const k in byId) delete byId[k];
+  const items=[];
+  g.scene.traverse(o=>{ if(!o.isMesh) return; items.push(o); });
+  for(const o of items){
+    const cands=[o.userData.name,o.name,o.parent&&o.parent.userData.name,o.parent&&o.parent.name]; const nm=cands.find(n=>n&&n.includes(':'))||'';
+    const [layer,id]=nm.split(':'); if(!LAYERS[layer]) continue;
+    let info;
+    if(layer==='b'){ info=boneInfo(id); o.material=boneMat(); }
+    else if(layer==='m'){ info=muscleInfo(id); const hue = {tete:.0,cou:.01,epaule:.02,membre_thor:.03,tronc:.0,membre_pelv:.015,queue:.02}[id.replace(/_[dg]$/,'')]||0;
+      o.material=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,.5,.42+Math.random()*.08),roughness:.7}); }
+    else if(ORG[id]){ info=organInfo(id); o.material=new THREE.MeshStandardMaterial({color:ORG[id][3],roughness:.5}); }
+    else if(REC[id]||REC[id.replace(/_[dg]$/,'')]){ info=recInfo(id); const lung=id.startsWith('poumon');
+      const L=info.sys; 
+      if(L==='Vaisseaux') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.32,clearcoat:.7,clearcoatRoughness:.25});
+      else if(L==='Nerfs' && id!=='encephale') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.55,sheen:.8,sheenColor:new THREE.Color('#fff4c8'),sheenRoughness:.5});
+      else o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:lung?.75:.45,clearcoat:lung?0:.3,transparent:lung,opacity:lung?.5:1,depthWrite:!lung}); }
+    else continue;
+    { const pa=o.geometry.attributes.position; if(!(pa.array instanceof Float32Array)){ const f=new Float32Array(pa.count*3); for(let i=0;i<pa.count;i++){ f[3*i]=pa.getX(i); f[3*i+1]=pa.getY(i); f[3*i+2]=pa.getZ(i); } o.geometry.setAttribute('position',new THREE.BufferAttribute(f,3)); o.geometry.deleteAttribute('normal'); } }
+    if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+    o.userData.base=o.material.color.clone(); o.userData.op=o.material.opacity; o.userData.tr=o.material.transparent;
+    o.userData.id=layer+':'+id; o.userData.layer=layer;
+    infoById[o.userData.id]=info; (byId[o.userData.id]??=[]).push(o);
+    const wp=new THREE.Vector3(), wq=new THREE.Quaternion(), ws=new THREE.Vector3(); o.updateWorldMatrix(true,false); o.matrixWorld.decompose(wp,wq,ws);
+    LAYERS[layer].group.add(o); o.position.copy(wp); o.quaternion.copy(wq); o.scale.copy(ws);
+    meshes.push(o);
+  }
+    for(const k in LAYERS) layerApply(k);
+    if(firstLoad){ buildList(); home(true); firstLoad=false; }
+    ld.remove(); updateQBtn();
+    const queue=meshes.slice(); (function step(){ if(tok!==loadToken) return; const t0=performance.now(); while(queue.length && performance.now()-t0<12){ const o=queue.shift(); if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); } if(queue.length) setTimeout(step,0); })();
+  }, xhr=>{ if(xhr.total&&tok===loadToken) ld.textContent='Chargement du modèle ('+QUAL[q].label+')… '+Math.round(xhr.loaded/xhr.total*100)+' %'; },
+  err=>{ ld.textContent='Impossible de charger le modèle.'; console.error(err); });
+}
+// ---------- Interface ----------
+const chips=document.getElementById('chips');
+for(const k in LAYERS){ const L=LAYERS[k]; const b=document.createElement('button'); b.className='chip';
+  b.innerHTML=`<span class="dot" style="background:${L.color}"></span>${L.label} <span class="st"></span>`;
+  b.onclick=()=>{ L.state = L.tri ? (L.state+2)%3 : (L.state?0:2); layerApply(k); if(selected && !LAYERS[selected.split(':')[0]].group.visible) select(null); };
+  L.btn=b; chips.appendChild(b); }
+const pbtn=document.createElement('button'); pbtn.className='chip'; pbtn.textContent='✦ Réseaux';
+pbtn.onclick=()=>{ const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; for(const k in L) layerApply(k); };
+chips.appendChild(pbtn);
+const qbtn=document.createElement('button'); qbtn.className='chip';
+function updateQBtn(){ qbtn.innerHTML='◐ '+QUAL[quality].label; }
+qbtn.onclick=()=>{ quality = quality==='hd'?'standard':'hd'; try{ localStorage.setItem('atlas-q',quality); }catch(e){} updateQBtn(); loadModel(quality); };
+chips.appendChild(qbtn); updateQBtn();
+const lbtn=document.createElement('button'); lbtn.className='chip'; lbtn.textContent='☰ Liste'; lbtn.onclick=()=>listEl.classList.add('open'); chips.appendChild(lbtn);
+const vbtn=document.createElement('button'); vbtn.className='chip'; vbtn.textContent='⟲ Vue'; vbtn.onclick=()=>home(); chips.appendChild(vbtn);
+document.getElementById('infoBtn').onclick=()=>document.getElementById('credits').classList.add('show');
+document.getElementById('crx').onclick=()=>document.getElementById('credits').classList.remove('show');
+
+const listEl=document.getElementById('list'), lb=document.getElementById('lb'), q=document.getElementById('q');
+document.getElementById('lx').onclick=()=>listEl.classList.remove('open');
+const listBtns={};
+const ORDER=['Tête','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Organes thoraciques','Organes abdominaux','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
+function natKey(id){ return id.replace(/\d+/g,n=>n.padStart(3,'0')); }
+function buildList(){
+  const groups={}; for(const id in infoById){ (groups[infoById[id].group]??=[]).push(id); }
+  for(const gname of ORDER){ const ids=groups[gname]; if(!ids) continue;
+    const h=document.createElement('h3'); h.textContent=gname; lb.appendChild(h);
+    const vorder={C:1,T:2,L:3,sacrum:4,coxal:5,Cd:6};
+    ids.sort((a,b)=>{ const ka=a.split(':')[1], kb=b.split(':')[1];
+      const pa=vorder[ka.match(/^[A-Za-z]+/)[0]]||9, pb=vorder[kb.match(/^[A-Za-z]+/)[0]]||9;
+      return pa-pb || natKey(ka).localeCompare(natKey(kb)); });
+    for(const id of ids){ const b=document.createElement('button'); b.className='it'; b.dataset.s=(infoById[id].fr+' '+infoById[id].la).toLowerCase();
+      b.innerHTML=`${infoById[id].fr}<small>${infoById[id].la}</small>`; b.onclick=()=>{ select(id,true); if(innerWidth<700) listEl.classList.remove('open'); };
+      lb.appendChild(b); listBtns[id]=b; }
+  }
+}
+q.oninput=()=>{ const s=q.value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  for(const id in listBtns){ const t=listBtns[id].dataset.s.normalize('NFD').replace(/[̀-ͯ]/g,''); listBtns[id].style.display = !s||t.includes(s)?'':'none'; } };
+
+const card=document.getElementById('card'); document.getElementById('cx').onclick=()=>select(null);
+let selected=null;
+function select(id,focus){
+  if(selected) byId[selected].forEach(o=>{ o.material.color.copy(o.userData.base); o.material.emissive.setHex(0); });
+  if(selected&&listBtns[selected]) listBtns[selected].classList.remove('sel');
+  selected=id; if(!id){ card.classList.remove('show'); return; }
+  const L=LAYERS[id.split(':')[0]]; if(L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
+  const box=new THREE.Box3(); byId[id].forEach(o=>{ o.material.color.setHex(0xffb340); o.material.emissive.setHex(0x3a2400); box.expandByObject(o); });
+  listBtns[id]?.classList.add('sel');
+  const inf=infoById[id]; cn.textContent=inf.fr; cl.textContent=inf.la; cs.textContent=inf.sys; cs.style.background=SYSCOL[inf.sys]; cd.textContent=inf.d; card.classList.add('show');
+  if(focus){ const c=box.getCenter(new THREE.Vector3()); const sz=box.getSize(new THREE.Vector3()).length();
+    const off=camera.position.clone().sub(controls.target).setLength(Math.max(0.6,Math.min(5,sz*2.6))); flyTo(c,c.clone().add(off)); }
+}
+let fly=null; function flyTo(t,p){ fly={t0:performance.now(),ft:controls.target.clone(),fp:camera.position.clone(),tt:t,tp:p}; }
+function home(instant){ const asp=innerWidth/innerHeight, t=new THREE.Vector3(0,0,0);
+  const d=Math.max(4.6, 2.2/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*asp));
+  const p=t.clone().add(new THREE.Vector3(0.85,0.35,0.4).normalize().multiplyScalar(d));
+  if(instant){ controls.target.copy(t); camera.position.copy(p); } else flyTo(t,p); }
+
+const ray=new THREE.Raycaster(); ray.firstHitOnly=false; const ptr=new THREE.Vector2(); let down=null, multi=false;
+const ripple=document.createElement('div'); ripple.style.cssText='position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;border:2px solid #ffb340;pointer-events:none;opacity:0;transition:opacity .35s,transform .35s;z-index:3';
+document.body.appendChild(ripple);
+function showRipple(x,y){ ripple.style.left=x+'px'; ripple.style.top=y+'px'; ripple.style.transition='none'; ripple.style.opacity='1'; ripple.style.transform='scale(.5)';
+  requestAnimationFrame(()=>{ ripple.style.transition='opacity .45s,transform .45s'; ripple.style.opacity='0'; ripple.style.transform='scale(1.6)'; }); }
+let pointers=0;
+canvas.addEventListener('pointerdown',e=>{ pointers++; if(pointers>1){ multi=true; } down={x:e.clientX,y:e.clientY,t:performance.now()}; },{capture:true});
+function endPointer(e,cancel){
+  pointers=Math.max(0,pointers-1);
+  if(!down) return; const d=down; if(pointers===0) down=null;
+  if(cancel||multi){ if(pointers===0) multi=false; return; }
+  const mv=Math.hypot(e.clientX-d.x,e.clientY-d.y), dt=performance.now()-d.t;
+  if(mv>14||dt>700) return;
+  doPick(e.clientX,e.clientY);
+}
+canvas.addEventListener('pointerup',e=>endPointer(e,false),{capture:true});
+canvas.addEventListener('pointercancel',e=>endPointer(e,true),{capture:true});
+function doPick(cx,cy){
+  const r=canvas.getBoundingClientRect();
+  ptr.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ptr,camera);
+  const vis=meshes.filter(o=>LAYERS[o.userData.layer].state>0);
+  for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
+  const hits=ray.intersectObjects(vis,false);
+  const solid=hits.find(h=>LAYERS[h.object.userData.layer].state===2 && !h.object.material.transparent);
+  const any=solid||hits.find(h=>LAYERS[h.object.userData.layer].state===2)||hits[0];
+  showRipple(cx,cy);
+  select(any?any.object.userData.id:null,false);
+}
+
+function resize(){ renderer.setSize(innerWidth,innerHeight,false); camera.aspect=innerWidth/innerHeight; camera.fov=camera.aspect<0.8?52:38; camera.updateProjectionMatrix(); }
+addEventListener('resize',resize); resize();
+loadModel(quality);
+renderer.setAnimationLoop(()=>{ if(fly){ const k=Math.min(1,(performance.now()-fly.t0)/700), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+  controls.target.lerpVectors(fly.ft,fly.tt,e); camera.position.lerpVectors(fly.fp,fly.tp,e); if(k>=1) fly=null; }
+  controls.update(); renderer.render(scene,camera); });
+window.__dbg={LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
+</script>
+</body>
+</html>
