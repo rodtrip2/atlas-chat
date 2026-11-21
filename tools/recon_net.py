@@ -28,15 +28,35 @@ for sign,S in [(1,'_g'),(-1,'_d')]:
         vei=[[-0.022,body_ymin(z0)-0.012,z0],[sign*0.03,body_ymin(z0)+0.012,z0]]+[off(p,0.009,0.005) for p in pts]
         ner=[[sign*0.012,canal_y(z0),z0],[sign*0.035,canal_y(z0)-0.02,z0-0.008]]+[off(p,0.017,0.006) for p in pts]
         add('art_intercost'+S,'v',tube(art,0.0028,0.0015)); add('v_intercost'+S,'v',tube(vei,0.0032,0.0018)); add('n_intercost'+S,'n',tube(ner,0.0022,0.0013))
-# ================= B. internal thoracic =================
+# ================= B. internal thoracic + epigastric =================
 SV=np.vstack([np.asarray(B[k].vertices) for k in ['manubrium','sternebre','xiphoide']])
 def ster_y(z):
     sel=SV[np.abs(SV[:,2]-z)<0.03]; return sel[:,1].max() if len(sel) else 0.05
+_ec=trimesh.load('sources/feline_ecorche_dec.glb').to_geometry(); EV=np.asarray(_ec.vertices)
+def wall_y(z,x):
+    sel=EV[(np.abs(EV[:,2]-z)<0.02)&(np.abs(EV[:,0]-x)<0.02)]; return sel[:,1].min()+0.024
 for sign,S in [(1,'_g'),(-1,'_d')]:
-    zz=np.linspace(0.97,0.42,8)
-    a=[[sign*0.04,0.42,1.02]]+[[sign*0.026,ster_y(z)+0.016,z] for z in zz]+[[sign*0.03,0.07,0.25],[sign*0.035,0.06,-0.05],[sign*0.035,0.06,-0.30]]
-    add('art_thor_int'+S,'v',tube(a,0.004,0.002))
-    add('v_thor_int'+S,'v',tube([[p[0]+sign*0.007,p[1]+0.002,p[2]] for p in a],0.0045,0.0025))
+    s_=lambda p: np.array([p[0]*sign,p[1],p[2]])
+    zz=np.linspace(0.95,0.50,7)
+    th=[s_([0.05,0.425,1.005]),s_([0.042,0.36,1.0]),s_([0.032,ster_y(0.97)+0.03,0.975])]+[s_([0.024,ster_y(z)+0.016,z]) for z in zz]
+    # musculophrenic branch along the costal arch (cartilages 8 to 10)
+    arch=[]
+    for k in [8,9,10]:
+        c=centerline(B[f'cart{k}{S}'])
+        if abs(c[0][0])>abs(c[-1][0]): c=c[::-1]          # medial -> lateral
+        arch+= list(c[len(c)//3::3])
+    arch=[p+np.array([-sign*0.01,0.012,-0.006]) for p in arch]
+    mp=[th[-1]]+arch
+    # cranial epigastric inside the ventral abdominal wall, meets the caudal epigastric
+    ze=[0.40,0.25,0.10,-0.05,-0.20,-0.35]
+    ce=[th[-1]]+[s_([0.03+0.004*i,wall_y(z,0.035),z]) for i,z in enumerate(ze)]
+    zc=[-0.35,-0.50,-0.65,-0.75]
+    cd=[s_([0.054,wall_y(z,0.055),z]) for z in zc]+[s_([0.085,0.33,-0.83]),s_([0.11,0.355,-0.87])]
+    add('art_thor_int'+S,'v',trimesh.util.concatenate([tube(th,0.004,0.0032),tube(mp,0.0024,0.0014),ball(th[-1],0.0034)]))
+    add('art_epigastrique'+S,'v',tube(ce+cd[1:],0.0028,0.0028))
+    vo=lambda pts,d=0.007: [np.asarray(p)+np.array([sign*d,0.002,0]) for p in pts]
+    add('v_thor_int'+S,'v',trimesh.util.concatenate([tube(vo(th),0.0045,0.0036),tube(vo(mp,0.006),0.0026,0.0016)]))
+    add('v_epigastrique'+S,'v',tube(vo(ce+cd[1:]),0.0032,0.0032))
 # ================= C. azygos =================
 az=[[-0.02,float(body_ymin(z))-0.012,z] for z in np.linspace(-0.05,0.86,10)]+[[-0.025,0.47,0.93],[-0.03,0.43,0.92]]
 add('azygos','v',tube(az,0.0055,0.0045))
