@@ -9,13 +9,21 @@ def simp(m,ratio,minf=150):
     return trimesh.Trimesh(v,fa,process=False)
 scene=trimesh.Scene(); meta={}
 # ---- bones
-parts=pickle.load(open('bones_parts.pkl','rb')); lab=json.load(open('data/bone_labels.json'))
+parts=pickle.load(open('bones_parts.pkl','rb')); lab=json.load(open('data/bone_labels2.json'))
+from skull_split import split as skull_split
 groups=defaultdict(list)
 for i,p in enumerate(parts): groups[lab[str(i)]].append(p)
 nb=0
 for id,ps in groups.items():
-    m=trimesh.util.concatenate(ps); m=simp(m,R(0.4,1.0)); nb+=len(m.faces)
-    scene.add_geometry(m,node_name='b:'+id,geom_name='b:'+id)
+    m=trimesh.util.concatenate(ps)
+    subs = {('cr_'+k):v for k,v in skull_split(m).items()} if id=='crane' else {id:m}
+    for sid,sm in subs.items():
+        sm=simp(sm,R(0.4,1.0),100); nb+=len(sm.faces)
+        scene.add_geometry(sm,node_name='b:'+sid,geom_name='b:'+sid)
+# ---- bony landmarks (markers)
+for lid,pos in json.load(open('data/landmarks.json')).items():
+    sph=trimesh.creation.icosphere(subdivisions=2,radius=0.0095); sph.apply_translation(pos)
+    scene.add_geometry(sph,node_name='k:'+lid,geom_name='k:'+lid)
 print('bones faces',nb,'groups',len(groups))
 # ---- muscles
 sc=trimesh.load('sources/feline_ecorche_dec.glb'); mm=sc.to_geometry(); mm.merge_vertices()

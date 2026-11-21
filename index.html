@@ -98,63 +98,158 @@ THREE.Mesh.prototype.raycast = acceleratedRaycast;
 // ---------- Nomenclature ----------
 const SIDE = {d:['droit','droite','dexter','dextra'], g:['gauche','gauche','sinister','sinistra']};
 const roman = n => ['','I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII','XIX','XX'][n];
+const ORD = {I:'premier',II:'deuxième',III:'troisième',IV:'quatrième',V:'cinquième'};
+// [nom, latin, description, genre ('f' si féminin), groupe]
 const BONES = {
-  crane:['Crâne','Cranium',"Ensemble des os du crâne et de la face, soudés chez l'adulte (sauf la mandibule et les osselets). Le chat a de très grandes orbites, ouvertes en arrière."],
-  mandibule:['Mandibule','Mandibula',"Mâchoire inférieure. Ses deux moitiés sont unies par une symphyse fibreuse, qui peut se disjoindre lors d'un traumatisme facial (chute)."],
-  dent:['Dents','Dentes',"Formule dentaire du chat adulte : I 3/3, C 1/1, P 3/2, M 1/1, soit 30 dents. La 4e prémolaire supérieure et la 1re molaire inférieure forment les carnassières."],
-  manubrium:['Manubrium du sternum','Manubrium sterni',"Première sternèbre, crâniale, sur laquelle s'articulent les premières côtes."],
-  sternebre:['Sternèbres','Sternebrae',"Segments osseux du corps du sternum. Le sternum du chat compte 8 sternèbres au total, manubrium et processus xiphoïde compris."],
-  xiphoide:['Processus xiphoïde','Processus xiphoideus',"Dernière sternèbre, prolongée par le cartilage xiphoïdien, à la limite du thorax et de l'abdomen."],
-  sacrum:['Sacrum','Os sacrum',"Trois vertèbres sacrées soudées, articulées avec les ailes des ilium."],
-  coxal:['Os coxaux (bassin)','Ossa coxae',"Chaque os coxal est formé de l'ilium, de l'ischium et du pubis soudés. Les deux os coxaux, unis par la symphyse pelvienne, forment avec le sacrum la ceinture pelvienne."],
-  scapula:['Scapula','Scapula',"Os plat de l'épaule, maintenu au thorax uniquement par des muscles. La clavicule du chat est vestigiale, non articulée."],
-  humerus:['Humérus','Humerus',"Os du bras. Chez le chat, il présente un foramen supracondylaire où passent le nerf médian et l'artère brachiale."],
-  radius:['Radius','Radius',"Os de l'avant-bras, en position crâniale. Il peut tourner autour de l'ulna (pronation et supination), mouvement important chez le chat."],
-  ulna:['Ulna','Ulna',"Os de l'avant-bras, en position caudale. Son olécrâne forme la pointe du coude."],
-  carpe:['Os du carpe','Ossa carpi',"Petits os du poignet, disposés en deux rangées. L'os accessoire du carpe fait saillie vers l'arrière."],
-  metacarpe:['Métacarpiens','Ossa metacarpalia',"Cinq métacarpiens ; le premier, court, porte l'ergot (doigt I)."],
-  phal1_m:['Phalanges proximales (main)','Phalanges proximales',"Premières phalanges des doigts du membre thoracique."],
-  phal2_m:['Phalanges moyennes (main)','Phalanges mediae',"Deuxièmes phalanges des doigts du membre thoracique."],
-  phal3_m:['Phalanges distales (main)','Phalanges distales',"Troisièmes phalanges, qui portent les griffes rétractiles. C'est la phalange retirée lors d'un dégriffage (onyxectomie)."],
-  femur:['Fémur','Femur',"Os de la cuisse. Sa tête s'articule avec l'acétabulum de l'os coxal (articulation coxo-fémorale)."],
-  patella:['Patella','Patella',"Os sésamoïde du genou, dans le tendon du muscle quadriceps fémoral."],
-  tibia:['Tibia','Tibia',"Os principal de la jambe, en position médiale."],
-  fibula:['Fibula','Fibula',"Os fin de la jambe, longeant le tibia latéralement."],
-  talus:['Talus','Talus',"Os du tarse qui s'articule avec le tibia et la fibula (articulation tarso-crurale)."],
-  calcaneus:['Calcanéus','Calcaneus',"Os du tarse formant la pointe du jarret, où s'insère le tendon calcanéen commun."],
-  tarse:['Autres os du tarse','Ossa tarsi',"Os du tarse (cheville) autres que le talus et le calcanéus : os central, os tarsiens I à IV."],
-  metatarse:['Métatarsiens','Ossa metatarsalia',"Métatarsiens du pied ; le premier est généralement rudimentaire chez le chat."],
-  phal1_p:['Phalanges proximales (pied)','Phalanges proximales',"Premières phalanges des doigts du membre pelvien."],
-  phal2_p:['Phalanges moyennes (pied)','Phalanges mediae',"Deuxièmes phalanges des doigts du membre pelvien."],
-  phal3_p:['Phalanges distales (pied)','Phalanges distales',"Troisièmes phalanges, porteuses des griffes."],
+  mandibule:['Mandibule','Mandibula',"Mâchoire inférieure, formée de deux hémimandibules unies à l'avant par une symphyse fibreuse. Elle s'articule avec l'os temporal (articulation temporo-mandibulaire), qui chez le chat ne permet presque que des mouvements verticaux, en cisaille. Insertions : muscles masséter, temporal (sur le processus coronoïde) et digastrique. Clinique : la disjonction de la symphyse est une lésion classique des chutes (« syndrome du chat parachutiste »).",'f','Tête'],
+  manubrium:['Manubrium du sternum','Manubrium sterni',"Première sternèbre, la plus crâniale. Elle porte l'articulation des premières côtes et donne insertion aux muscles sterno-céphalique et pectoraux.",'m','Thorax'],
+  xiphoide:['Processus xiphoïde','Processus xiphoideus',"Dernière sternèbre, prolongée par le cartilage xiphoïdien. Il donne insertion au diaphragme et à la ligne blanche ; c'est un repère palpable de la limite thorax-abdomen.",'m','Thorax'],
+  sacrum:['Sacrum','Os sacrum',"Trois vertèbres sacrées soudées. Ses ailes s'articulent avec les ilium (articulation sacro-iliaque). Clinique : la luxation sacro-iliaque est fréquente après un traumatisme (accident de voiture), souvent associée à des fractures du bassin.",'m','Colonne vertébrale'],
+  coxal:['Os coxaux (bassin)','Ossa coxae',"Chaque os coxal réunit l'ilium, l'ischium et le pubis, soudés au niveau de l'acétabulum. Les deux os coxaux, unis par la symphyse pelvienne, forment avec le sacrum la ceinture pelvienne qui transmet la poussée des membres pelviens. Clinique : les fractures du bassin peuvent rétrécir le canal pelvien et gêner la défécation (risque de mégacôlon).",'m','Colonne vertébrale'],
+  scapula:['Scapula','Scapula',"Os plat de l'épaule, sans articulation osseuse avec le thorax : il n'est tenu que par des muscles (synsarcose), ce qui allonge la foulée et amortit la réception des sauts. Sa face latérale porte l'épine scapulaire, terminée par l'acromion et un processus suprahamatus. La clavicule du chat est un petit os vestigial noyé dans les muscles. Articulation : scapulo-humérale (avec la tête de l'humérus).",'f','Membre thoracique'],
+  humerus:['Humérus','Humerus',"Os du bras. Proximalement : tête humérale (articulation de l'épaule) et tubercule majeur (insertion des muscles supra- et infra-épineux). Distalement : condyle huméral articulé avec le radius et l'ulna (coude). Particularité du chat : un foramen supracondylaire médial où passent le nerf médian et l'artère brachiale, à respecter lors de l'ostéosynthèse des fractures.",'m','Membre thoracique'],
+  radius:['Radius','Radius',"Os de l'avant-bras, en position crâniale. Sa tête s'articule avec l'humérus et l'ulna ; il peut tourner autour de l'ulna (pronation et supination), mouvement très développé chez le chat pour attraper et grimper. Distalement, il porte l'essentiel de l'articulation du carpe (processus styloïde médial).",'m','Membre thoracique'],
+  ulna:['Ulna','Ulna',"Os de l'avant-bras, en position caudale. L'olécrâne forme la pointe du coude et reçoit le tendon du muscle triceps brachial (extenseur du coude). L'incisure trochléaire emboîte le condyle huméral. Distalement, le processus styloïde ulnaire participe au carpe.",'f','Membre thoracique'],
+  femur:['Fémur','Femur',"Os de la cuisse, le plus long du corps. Proximalement : tête fémorale (articulation coxo-fémorale avec l'acétabulum), col, grand trochanter (muscles fessiers) et petit trochanter (muscle ilio-psoas). Distalement : trochlée (glissement de la patella) et deux condyles (articulation du genou). Clinique : chez le chat, les fractures de la tête fémorale par décollement épiphysaire (« glissement capital ») touchent surtout les jeunes mâles stérilisés en surpoids.",'m','Membre pelvien'],
+  patella:['Patella','Patella',"Os sésamoïde du genou, inclus dans le tendon du muscle quadriceps fémoral ; il glisse dans la trochlée fémorale et augmente le bras de levier de l'extension du genou. Clinique : la luxation de la patella (le plus souvent médiale) existe aussi chez le chat.",'f','Membre pelvien'],
+  tibia:['Tibia','Tibia',"Os principal de la jambe, en position médiale. Proximalement, ses deux condyles portent les ménisques du genou et la tubérosité tibiale reçoit le ligament patellaire ; distalement, la malléole médiale. Sa face médiale, juste sous la peau, est un site de fractures ouvertes et de prélèvement de moelle osseuse.",'m','Membre pelvien'],
+  fibula:['Fibula','Fibula',"Os fin de la jambe, longeant le tibia latéralement. Il ne porte presque pas de poids mais donne insertion à des muscles de la jambe ; distalement, il forme la malléole latérale du tarse.",'f','Membre pelvien'],
+  talus:['Talus','Talus',"Os du tarse en forme de poulie (trochlée) qui s'articule avec le tibia et la fibula : c'est l'articulation tarso-crurale, la principale charnière du jarret.",'m','Membre pelvien'],
+  calcaneus:['Calcanéus','Calcaneus',"Le plus gros os du tarse. Sa tubérosité forme la pointe du jarret et reçoit le tendon calcanéen commun (gastrocnémien et fléchisseur superficiel des doigts), qui étend le tarse lors de la propulsion. Clinique : la rupture de ce tendon donne une démarche plantigrade.",'m','Membre pelvien'],
+  carpe_rad:['Os carpal radial (scapholunaire)','Os carpi radiale',"Le plus gros os du carpe, issu chez le chat de la fusion de plusieurs os (scaphoïde et lunaire). Il s'articule avec le radius et porte l'essentiel du poids transmis par l'avant-bras.",'m','Membre thoracique'],
+  carpe_uln:['Os carpal ulnaire','Os carpi ulnare',"Os de la rangée proximale du carpe, en position latérale, articulé avec l'ulna.",'m','Membre thoracique'],
+  carpe_acc:['Os carpal accessoire','Os carpi accessorium',"Os qui fait saillie à la face palmaire et caudale du carpe ; il sert de levier aux fléchisseurs du carpe (fléchisseur ulnaire du carpe). Repère palpable, au-dessus du coussinet carpien.",'m','Membre thoracique'],
+  carpeI:['Os carpal I','Os carpale primum',"Os le plus médial de la rangée distale du carpe, en regard du métacarpien I (ergot).",'m','Membre thoracique'],
+  carpeII:['Os carpal II','Os carpale secundum',"Os de la rangée distale du carpe, en regard du métacarpien II.",'m','Membre thoracique'],
+  carpeIII:['Os carpal III','Os carpale tertium',"Os de la rangée distale du carpe, en regard du métacarpien III.",'m','Membre thoracique'],
+  carpeIV:['Os carpal IV','Os carpale quartum',"Os latéral de la rangée distale du carpe, en regard des métacarpiens IV et V.",'m','Membre thoracique'],
+  tarse_cen:['Os tarsal central','Os tarsi centrale',"Os du tarse situé entre le talus et la rangée distale (os tarsaux I à III).",'m','Membre pelvien'],
+  tarseII:['Os tarsal II','Os tarsale secundum',"Petit os de la rangée distale du tarse, en regard du métatarsien II.",'m','Membre pelvien'],
+  tarseIII:['Os tarsal III','Os tarsale tertium',"Os de la rangée distale du tarse, en regard du métatarsien III.",'m','Membre pelvien'],
+  tarseIV:['Os tarsal IV','Os tarsale quartum',"Gros os latéral du tarse, qui occupe les deux rangées, entre le calcanéus et les métatarsiens IV et V.",'m','Membre pelvien'],
 };
-const VERT = {C:['cervicale','cervicalis','Vertèbres cervicales : 7, comme chez tous les mammifères.'],T:['thoracique','thoracica','13 vertèbres thoraciques, chacune articulée avec une paire de côtes.'],L:['lombaire','lumbalis','7 vertèbres lombaires, longues et robustes ; leur souplesse explique la grande flexibilité dorsale du chat.'],Cd:['caudale','caudalis','Vertèbres caudales : une vingtaine selon les individus. Le modèle en compte 17.']};
+const SKULL = {
+  cr_frontal:['Os frontal','Os frontale',"Os du front, entre les orbites. Il forme le toit de l'orbite et contient le sinus frontal ; son processus zygomatique (postorbitaire) limite l'orbite en arrière, sans la fermer complètement chez le chat."],
+  cr_parietal:['Os pariétal','Os parietale',"Os du toit de la boîte crânienne, de part et d'autre de la crête sagittale externe où s'insère le muscle temporal."],
+  cr_occipital:['Os occipital','Os occipitale',"Os de l'arrière du crâne. Il entoure le foramen magnum, par lequel passe la moelle épinière, et porte les deux condyles occipitaux articulés avec l'atlas (mouvement de « oui » de la tête)."],
+  cr_temporal:['Os temporal','Os temporale',"Os de la paroi latérale du crâne. Il contient l'oreille moyenne et interne, dans la bulle tympanique très développée du chat, et porte la fosse mandibulaire de l'articulation temporo-mandibulaire. Clinique : les polypes naso-pharyngés et les otites moyennes du chat se développent dans la bulle, opérée par ostéotomie ventrale."],
+  cr_zygomatique:['Arcade zygomatique','Arcus zygomaticus',"Arc osseux formé par l'os zygomatique et le processus zygomatique du temporal. Il limite l'orbite latéralement et donne insertion au muscle masséter."],
+  cr_maxillaire:['Os maxillaire','Maxilla',"Os de la face qui porte la canine, les prémolaires et la molaire supérieures. Le foramen infra-orbitaire, qui laisse passer le nerf et l'artère infra-orbitaires vers les vibrisses, s'ouvre sur sa face latérale."],
+  cr_nasal:['Os nasal','Os nasale',"Os du dos du nez, au-dessus des cavités nasales ; court chez le chat."],
+  cr_incisif:['Os incisif','Os incisivum',"Os le plus rostral de la mâchoire supérieure, qui porte les incisives supérieures."],
+  cr_base:['Base du crâne','Basis cranii',"Ensemble ventral formé par le sphénoïde, les os palatins et les ptérygoïdes : plancher de la boîte crânienne et toit du pharynx (palais osseux)."],
+};
+const SKULL_NOTE=" Le crâne du modèle est d'un seul bloc : la limite entre les os est tracée de façon approximative.";
+const VERT = {C:['cervicale','cervicalis',"Les 7 vertèbres cervicales soutiennent et mobilisent la tête ; leurs processus transverses forment, avec le foramen transversaire, le canal de l'artère vertébrale.",'Colonne vertébrale'],
+              T:['thoracique','thoracica',"Les 13 vertèbres thoraciques portent chacune une paire de côtes (fovéas costales) ; leurs hauts processus épineux donnent insertion aux muscles du garrot.",'Colonne vertébrale'],
+              L:['lombaire','lumbalis',"Les 7 vertèbres lombaires, longues, ont de grands processus transverses orientés crânio-ventralement (muscles psoas et carré des lombes). Leur souplesse explique la grande flexion dorsale du chat (course, saut, réflexe de redressement).",'Colonne vertébrale'],
+              Cd:['caudale','caudalis',"Les vertèbres caudales (une vingtaine ; 17 sur ce modèle) deviennent de simples cylindres vers la pointe. Clinique : un arrachement de la queue peut léser les nerfs de la queue de cheval (incontinence).",'Colonne vertébrale']};
+const TOOTH = {I1:['Incisive 1','I1','01'],I2:['Incisive 2','I2','02'],I3:['Incisive 3','I3','03'],C:['Canine','C','04'],P2:['Deuxième prémolaire','P2','06'],P3:['Troisième prémolaire','P3','07'],P4:['Quatrième prémolaire','P4','08'],M1:['Première molaire','M1','09'],P:['Prémolaire','P','—']};
+function toothInfo(id){
+  const [,t,jaw,sd]=id.match(/^dent_([A-Z0-9]+)_(sup|inf)_([dg])$/);
+  const T=TOOTH[t]; const sup=jaw==='sup';
+  const quad = sup ? (sd==='d'?1:2) : (sd==='g'?3:4);
+  let fr=`${T[0]} ${sup?'supérieure':'inférieure'} ${SIDE[sd][1]} (${T[1]})`;
+  let d=`Numérotation de Triadan modifiée : ${quad}${T[2]}. Formule dentaire du chat adulte : I 3/3, C 1/1, P 3/2, M 1/1, soit 30 dents.`;
+  if(t.startsWith('I')) d+=" Petites incisives utilisées pour saisir et pour la toilette.";
+  if(t==='C') d+=" Canine longue et pointue, pour saisir et tuer la proie ; c'est la dent la plus souvent fracturée chez le chat.";
+  if(sup&&t==='P4'||!sup&&t==='M1'){ fr+=' – carnassière'; d+=" Carnassière : elle forme avec sa vis-à-vis une paire de lames qui tranche la viande."; }
+  if(sup&&t==='M1') d+=" Molaire supérieure minuscule, presque sans rôle masticatoire.";
+  d+=" Clinique : les lésions de résorption dentaire (« néck lesions ») touchent surtout les prémolaires et molaires.".replace('néck','neck');
+  return {fr, la:`Dens ${{I1:'incisivus I',I2:'incisivus II',I3:'incisivus III',C:'caninus',P2:'premolaris II',P3:'premolaris III',P4:'premolaris IV',M1:'molaris I',P:'premolaris'}[t]} ${sup?'superior':'inferior'}`, d, sys:'Squelette', group:'Dents'};
+}
+function sideWord(sd,fem){ return fem? SIDE[sd][1] : SIDE[sd][0]; }
 function boneInfo(id){
-  let side=null, base=id;
-  const m=id.match(/^(.*)_([dg])$/); if(m){ base=m[1]; side=m[2]; }
-  let fr,la,d,group;
-  const v=base.match(/^(C|T|L|Cd)(\d+)$/);
-  const r=base.match(/^cote(\d+)$/), c=base.match(/^cart(\d+)$/);
-  if (v){ const [w,lw,dd]=VERT[v[1]]; const n=+v[2];
-    fr=`Vertèbre ${w} ${v[1]}${n}`; la=`Vertebra ${lw} ${roman(n)}`; d=dd;
-    if(base==='C1'){fr='Atlas (C1)'; la='Atlas'; d="Première vertèbre cervicale, en forme d'anneau aux larges ailes. Elle porte le crâne et permet le « oui » de la tête.";}
-    if(base==='C2'){fr='Axis (C2)'; la='Axis'; d="Deuxième vertèbre cervicale. Sa dent (processus odontoïde) sert de pivot à l'atlas : rotation de la tête.";}
-    if(base==='T1') d+=" T1 porte la première paire de côtes ; son processus épineux est très haut.";
-    if(base==='T11') d+=" Chez le chat, T11 est en général la vertèbre anticlinale (processus épineux vertical).";
-    group = v[1]==='C'||v[1]==='T'||v[1]==='L'||v[1]==='Cd' ? 'Colonne vertébrale' : '';
-  } else if (r){ const n=+r[1]; fr=`Côte ${n}`; la=`Costa ${roman(n)}`;
-    d = n<=9 ? "Côte sternale : son cartilage s'articule directement avec le sternum." : (n===13 ? "Dernière côte, souvent flottante (son cartilage reste libre)." : "Côte asternale : son cartilage rejoint celui de la côte précédente pour former l'arc costal.");
-    group='Thorax';
-  } else if (c){ const n=+c[1]; fr=`Cartilage costal ${n}`; la=`Cartilago costalis ${roman(n)}`; d="Partie cartilagineuse, ventrale, de la côte. Elle donne au thorax son élasticité."; group='Thorax';
-  } else { const b=BONES[base]||[base,'','']; [fr,la,d]=b;
-    group = ['crane','mandibule','dent'].includes(base)?'Tête' : ['manubrium','sternebre','xiphoide'].includes(base)?'Thorax' : ['sacrum','coxal'].includes(base)?'Colonne vertébrale et bassin':
-      ['scapula','humerus','radius','ulna','carpe','metacarpe','phal1_m','phal2_m','phal3_m'].includes(base)?'Membre thoracique':'Membre pelvien';
-    if(base==='sacrum'||base==='coxal') group='Colonne vertébrale';
-  }
-  if (side){ const fem = /^(Côte|Scapula|Ulna|Patella|Fibula|Phalanges|Vertèbre)/.test(fr) || fr.startsWith('Côte');
-    fr += ' ' + (fem? SIDE[side][1] : SIDE[side][0]); la += ' ' + (/a$|ae$|is$/.test(la.split(' ')[0])? SIDE[side][3]:SIDE[side][2]); }
+  if(id.startsWith('dent_')) return toothInfo(id);
+  let side=null, base=id; const m=id.match(/^(.*)_([dg])$/); if(m){ base=m[1]; side=m[2]; }
+  let fr,la,d,group,fem=false;
+  const v=base.match(/^(C|T|L|Cd)(\d+)$/), r=base.match(/^cote(\d+)$/), c=base.match(/^cart(\d+)$/), st=base.match(/^sternebre(\d+)$/);
+  const mc=base.match(/^(mc|mt)(I|II|III|IV|V)$/), ph=base.match(/^phal([123])_([mp])(I|II|III|IV|V)$/);
+  if (v){ const [w,lw,dd,g]=VERT[v[1]]; const n=+v[2]; fem=true;
+    fr=`Vertèbre ${w} ${v[1]}${n}`; la=`Vertebra ${lw} ${roman(n)}`; d=dd; group=g;
+    if(base==='C1'){fr='Atlas (C1)'; la='Atlas'; fem=false; d="Première vertèbre cervicale, en anneau, sans corps ni processus épineux, avec de larges ailes palpables derrière le crâne. Elle s'articule avec les condyles occipitaux (flexion-extension de la tête) et avec l'axis (rotation).";}
+    if(base==='C2'){fr='Axis (C2)'; la='Axis'; fem=false; d="Deuxième vertèbre cervicale. Sa dent (processus odontoïde) s'emboîte dans l'atlas et sert de pivot à la rotation de la tête ; son long processus épineux en lame donne insertion au ligament nucal. Clinique : une instabilité atlanto-axiale comprime la moelle cervicale.";}
+    if(base==='T1') d+=" T1 porte la première paire de côtes ; son processus épineux est parmi les plus hauts.";
+    if(base==='T11') d+=" T11 est en général la vertèbre anticlinale : son processus épineux est vertical, ceux qui précèdent penchent vers l'arrière et ceux qui suivent vers l'avant. Repère radiographique.";
+    if(base.startsWith('L')&&+v[2]===7) d+=" L7 s'articule avec le sacrum (jonction lombo-sacrée).";
+  } else if (r){ const n=+r[1]; fr=`Côte ${n}`; la=`Costa ${roman(n)}`; fem=true; group='Thorax';
+    d = (n<=9 ? "Côte sternale : son cartilage s'articule directement avec le sternum." : (n===13 ? "Dernière côte, souvent flottante : son cartilage reste libre dans la paroi." : "Côte asternale : son cartilage rejoint celui de la côte précédente pour former l'arc costal."))+
+        " Sa tête s'articule avec deux vertèbres et son tubercule avec le processus transverse. Les vaisseaux et le nerf intercostaux longent son bord caudal : on ponctionne le thorax (thoracocentèse) au bord crânial d'une côte pour les éviter.";
+  } else if (c){ const n=+c[1]; fr=`Cartilage costal ${n}`; la=`Cartilago costalis ${roman(n)}`; group='Thorax';
+    d="Partie ventrale, cartilagineuse, de la côte, qui donne au thorax son élasticité. Chez le chat, les cartilages costaux restent très souples, ce qui rend le thorax compressible (massage cardiaque efficace).";
+  } else if (st){ const n=+st[1]; fr=`Sternèbre ${n}`; la=`Sternebra ${roman(n)}`; fem=true; group='Thorax';
+    d="Segment osseux du corps du sternum (8 sternèbres au total, manubrium et processus xiphoïde compris), séparé des voisins par des cartilages intersternébraux où s'articulent les cartilages costaux.";
+  } else if (mc){ const isM=mc[1]==='mc'; const n=mc[2]; fr=`${isM?'Métacarpien':'Métatarsien'} ${n}`; la=`Os ${isM?'metacarpale':'metatarsale'} ${n}`; group=isM?'Membre thoracique':'Membre pelvien';
+    d = isM ? (n==='I' ? "Métacarpien du doigt I (ergot), court et situé plus haut que les autres ; il ne touche pas le sol." : `Os de la paume, entre le carpe et la phalange proximale du doigt ${n}. Les métacarpiens III et IV sont les plus longs et portent l'essentiel de l'appui.`)
+            : `Os du pied, entre le tarse et la phalange proximale du doigt ${n}. Le chat a quatre doigts fonctionnels au membre pelvien (II à V) ; le métatarsien I est rudimentaire ou absent.`;
+  } else if (ph){ const [_,k,l,n]=ph; const pos={1:'proximale',2:'moyenne',3:'distale'}[k]; fem=true;
+    fr=`Phalange ${pos} du doigt ${n} (${l==='m'?'main':'pied'})`; la=`Phalanx ${{1:'proximalis',2:'media',3:'distalis'}[k]} digiti ${n}`; group=l==='m'?'Membre thoracique':'Membre pelvien';
+    d = k==='3' ? "Phalange distale, qui porte la griffe. Au repos, un ligament élastique dorsal la tient relevée contre la phalange moyenne (griffe rétractée) ; le muscle fléchisseur profond des doigts la fait sortir. C'est cette phalange qui est retirée lors d'un dégriffage (onyxectomie), intervention interdite dans de nombreux pays."
+        : k==='2' ? "Phalange moyenne ; sa forme asymétrique permet à la phalange distale de se replier latéralement (rétraction de la griffe)."
+        : "Phalange proximale, articulée avec le métacarpien ou le métatarsien (articulation métacarpo- ou métatarso-phalangienne), sous laquelle se trouvent les coussinets digités.";
+    if(n==='I') d+=" Doigt I (ergot) : il n'a que deux phalanges et ne touche pas le sol.";
+  } else if (SKULL[base]){ const s=SKULL[base]; fr=s[0]; la=s[1]; d=s[2]+SKULL_NOTE; group='Tête'; fem=false;
+  } else { const b=BONES[base]||[base,'','','m','Tête']; [fr,la,d]=b; fem=b[3]==='f'; group=b[4]; }
+  if (side){ const sw=sideWord(side,fem); fr = / \((main|pied)\)$/.test(fr) ? fr.replace(/ \((main|pied)\)$/,' '+sw+' ($1)') : fr+' '+sw; const w=la.split(' ')[0]; const g=/^(Os|Ossa)$/.test(w)?'n':(/(a|ae|x|o)$/.test(w)?'f':'m');
+    la += ' '+({n:['dextrum','sinistrum'],f:['dextra','sinistra'],m:['dexter','sinister']}[g][side==='d'?0:1]); }
   return {fr,la,d,sys:'Squelette',group};
 }
+// ---------- Repères osseux ----------
+const LMI = {
+  hum_tete:['Tête de l\'humérus','Caput humeri',"Surface articulaire arrondie qui s'emboîte dans la cavité glénoïde de la scapula (articulation de l'épaule)."],
+  hum_tub_majeur:['Tubercule majeur de l\'humérus','Tuberculum majus',"Saillie crânio-latérale de l'extrémité proximale : insertion des muscles supra-épineux et infra-épineux. Repère palpable de la pointe de l'épaule."],
+  hum_epi_lat:['Épicondyle latéral de l\'humérus','Epicondylus lateralis',"Origine des muscles extenseurs du carpe et des doigts ; repère palpable à la face latérale du coude."],
+  hum_epi_med:['Épicondyle médial de l\'humérus','Epicondylus medialis',"Origine des muscles fléchisseurs du carpe et des doigts."],
+  hum_foramen:['Foramen supracondylaire','Foramen supracondylare',"Orifice propre au chat, au-dessus de l'épicondyle médial, où passent le nerf médian et l'artère brachiale. Position indiquée de façon approximative."],
+  uln_olecrane:['Olécrâne','Olecranon',"Pointe du coude, sur laquelle s'insère le tendon du triceps brachial. Repère palpable ; fracturé lors des chutes sur le coude."],
+  uln_styloide:['Processus styloïde de l\'ulna','Processus styloideus ulnae',"Extrémité distale de l'ulna, à la face latérale du carpe."],
+  rad_tete:['Tête du radius','Caput radii',"Extrémité proximale du radius, qui tourne contre l'ulna lors de la pronation-supination."],
+  rad_styloide:['Processus styloïde du radius','Processus styloideus radii',"Saillie médiale de l'extrémité distale du radius, au bord médial du carpe."],
+  scap_glenoide:['Cavité glénoïde','Cavitas glenoidalis',"Surface articulaire de la scapula qui reçoit la tête de l'humérus."],
+  scap_bord_dorsal:['Bord dorsal de la scapula','Margo dorsalis',"Bord supérieur, prolongé par le cartilage scapulaire ; palpable au garrot."],
+  scap_epine:['Épine scapulaire','Spina scapulae',"Crête de la face latérale, qui sépare les fosses supra- et infra-épineuses ; insertion du trapèze et du deltoïde."],
+  scap_acromion:['Acromion','Acromion',"Extrémité ventrale de l'épine scapulaire, juste au-dessus de l'épaule ; origine d'une partie du muscle deltoïde."],
+  fem_tete:['Tête du fémur','Caput ossis femoris',"Sphère articulaire logée dans l'acétabulum. Clinique : siège du décollement épiphysaire spontané du chat et de la dysplasie de la hanche (chez le maine coon notamment)."],
+  fem_gd_troch:['Grand trochanter','Trochanter major',"Saillie latérale proximale : insertion des muscles fessiers. Repère palpable de la hanche, utilisé pour vérifier une luxation coxo-fémorale."],
+  fem_pt_troch:['Petit trochanter','Trochanter minor',"Saillie médio-caudale proximale : insertion du muscle ilio-psoas (fléchisseur de la hanche)."],
+  fem_trochlee:['Trochlée fémorale','Trochlea ossis femoris',"Gouttière de la face crâniale de l'extrémité distale, dans laquelle glisse la patella."],
+  fem_cond_med:['Condyle médial du fémur','Condylus medialis',"Surface articulaire du genou, en appui sur le condyle médial du tibia et son ménisque."],
+  fem_cond_lat:['Condyle latéral du fémur','Condylus lateralis',"Surface articulaire du genou, en appui sur le condyle latéral du tibia et son ménisque."],
+  tib_tuberosite:['Tubérosité tibiale','Tuberositas tibiae',"Saillie crâniale de l'extrémité proximale du tibia, où s'insère le ligament patellaire (tendon du quadriceps)."],
+  tib_malleole:['Malléole médiale','Malleolus medialis',"Extrémité distale médiale du tibia, palpable à la face médiale du jarret."],
+  fib_malleole:['Malléole latérale','Malleolus lateralis',"Extrémité distale de la fibula, palpable à la face latérale du jarret."],
+  calc_tuber:['Tubérosité calcanéenne','Tuber calcanei',"Pointe du jarret, où s'insère le tendon calcanéen commun."],
+  cox_ilium:['Aile de l\'ilium','Ala ossis ilii',"Partie crâniale large de l'os coxal ; sa crête (tuber coxae) est palpable devant la hanche. Elle s'articule avec l'aile du sacrum."],
+  cox_ischion:['Tubérosité ischiatique','Tuber ischiadicum',"Pointe caudale du bassin, palpable de chaque côté de la queue ; origine des muscles ischio-jambiers (biceps fémoral, semi-tendineux, semi-membraneux)."],
+  cox_acetabulum:['Acétabulum','Acetabulum',"Cavité articulaire de l'os coxal qui reçoit la tête du fémur (articulation coxo-fémorale) ; point de jonction de l'ilium, de l'ischium et du pubis."],
+  cox_obture:['Foramen obturé','Foramen obturatum',"Grand orifice du plancher du bassin, entre le pubis et l'ischium, fermé par une membrane et les muscles obturateurs. Position du centre indiquée de façon approximative."],
+  cox_symphyse:['Symphyse pelvienne','Symphysis pelvina',"Union médiane des deux os coxaux, sur le plancher du bassin."],
+  cr_arcade:['Arcade zygomatique (point le plus large)','Arcus zygomaticus',"Point le plus latéral du crâne ; donne insertion au masséter. Repère de la largeur de la tête."],
+  cr_bulle:['Bulle tympanique','Bulla tympanica',"Renflement osseux ventral qui contient l'oreille moyenne ; divisé chez le chat en deux compartiments par une cloison."],
+  cr_condyle:['Condyle occipital','Condylus occipitalis',"Surface articulaire de l'os occipital, de chaque côté du foramen magnum, articulée avec l'atlas."],
+  cr_postorb:['Processus zygomatique du frontal','Processus zygomaticus ossis frontalis',"Pointe postorbitaire qui limite l'orbite en arrière ; chez le chat, l'orbite reste ouverte (ligament orbitaire)."],
+  cr_orbite:['Orbite','Orbita',"Cavité qui loge l'œil ; très grande chez le chat, en lien avec sa vision crépusculaire. Position du centre indiquée de façon approximative."],
+  cr_infraorb:['Foramen infra-orbitaire','Foramen infraorbitale',"Orifice du maxillaire sous l'œil, par où sortent le nerf et l'artère infra-orbitaires vers les vibrisses ; site d'anesthésie locale en dentisterie. Position approximative."],
+  cr_meat:['Méat acoustique externe','Meatus acusticus externus',"Ouverture osseuse du conduit auditif, au-dessus de la bulle tympanique. Position approximative."],
+  cr_crete_sag:['Crête sagittale externe','Crista sagittalis externa',"Crête médiane du toit du crâne, où s'insère le muscle temporal."],
+  cr_protub_occ:['Protubérance occipitale externe','Protuberantia occipitalis externa',"Saillie médiane de l'arrière du crâne, insertion du ligament nucal et des muscles du cou."],
+  cr_foramen_magnum:['Foramen magnum','Foramen magnum',"Grand orifice de l'os occipital par lequel l'encéphale se continue par la moelle épinière."],
+  md_coronoide:['Processus coronoïde','Processus coronoideus',"Lame dorsale de la branche mandibulaire, sur laquelle s'insère le muscle temporal, le plus puissant fermeur de la mâchoire."],
+  md_condyle:['Processus condylaire','Processus condylaris',"Tête articulaire de la mandibule, logée dans la fosse mandibulaire du temporal (articulation temporo-mandibulaire)."],
+  md_angulaire:['Processus angulaire','Processus angularis',"Saillie caudo-ventrale de la mandibule : insertion des muscles masséter et ptérygoïdien médial."],
+  md_mental:['Foramens mentonniers','Foramina mentalia',"Orifices rostraux de la mandibule par où sortent les nerfs et vaisseaux de la lèvre inférieure. Position approximative."],
+  md_symphyse:['Symphyse mandibulaire','Symphysis mandibulae',"Union fibreuse des deux hémimandibules ; souvent disjointe chez le chat après une chute."],
+  atlas_aile:['Aile de l\'atlas','Ala atlantis',"Large processus transverse de l'atlas, palpable juste derrière le crâne."],
+  axis_dent:['Dent de l\'axis','Dens axis',"Processus de l'axis qui s'emboîte dans l'anneau de l'atlas et sert de pivot à la rotation de la tête."],
+  T1_epineux:['Processus épineux de T1','Processus spinosus T1',"Parmi les plus hauts de la colonne ; base osseuse du garrot."],
+  T11_epineux:['Processus épineux de T11 (anticlinal)','Processus spinosus T11',"Processus vertical de la vertèbre anticlinale, repère radiographique de la jonction thoraco-lombaire."],
+  L4_transverse:['Processus transverse de L4','Processus transversus L4',"Long processus des vertèbres lombaires, orienté crânio-ventralement ; insertion des muscles de la région lombaire."],
+  sacrum_aile:['Aile du sacrum','Ala ossis sacri',"Partie latérale du sacrum, articulée avec l'ilium (articulation sacro-iliaque)."],
+};
+function lmInfo(id){ let sd=null, base=id; const m=id.match(/^(.*)_([dg])$/); if(m&&LMI[m[1]]){ base=m[1]; sd=m[2]; }
+  const r=LMI[base]; let fr=r[0]+(sd?(' – côté '+SIDE[sd][0]):'');
+  return {fr,la:r[1],d:r[2],sys:'Repères osseux',group:'Repères osseux'}; }
+
 const MUSC = {
   tete:['Muscles de la tête','Musculi capitis',"Muscles de la face et de la mastication. Le muscle temporal et le masséter, très puissants chez le chat, ferment la mâchoire."],
   cou:['Muscles du cou','Musculi colli',"Muscles qui soutiennent et mobilisent la tête et le cou (brachiocéphalique, sterno-céphalique, splénius…)."],
@@ -252,7 +347,7 @@ const REC = {
 function recInfo(id){ let r=REC[id], sd=null, base=id; if(!r){ const m=id.match(/^(.*?)_([dg])$/); base=m[1]; sd=m[2]; r=REC[base]; }
   let fr=r[1]; if(sd){ fr = /^(Veine |Artère )/.test(fr) && !fr.includes('(') ? fr+' '+SIDE[sd][1] : fr+' – côté '+SIDE[sd][0]; }
   return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs'}[r[0]],group:r[5],color:r[4]}; }
-const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b'};
+const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b','Repères osseux':'#37c6c0'};
 
 // ---------- Scène ----------
 const canvas=document.getElementById('c');
@@ -273,6 +368,7 @@ const LAYERS={
   o:{label:'Organes',color:'#e3a37a',state:2,tri:.3,group:new THREE.Group()},
   v:{label:'Vaisseaux',color:'#e5484d',state:2,group:new THREE.Group()},
   n:{label:'Nerfs',color:'#f2d24b',state:2,group:new THREE.Group()},
+  k:{label:'Repères',color:'#37c6c0',state:2,group:new THREE.Group()},
 };
 for(const k in LAYERS) scene.add(LAYERS[k].group);
 const meshes=[], byId={}, infoById={};
@@ -304,7 +400,11 @@ function loadModel(q){
     const cands=[o.userData.name,o.name,o.parent&&o.parent.userData.name,o.parent&&o.parent.name]; const nm=cands.find(n=>n&&n.includes(':'))||'';
     const [layer,id]=nm.split(':'); if(!LAYERS[layer]) continue;
     let info;
-    if(layer==='b'){ info=boneInfo(id); o.material=boneMat(); }
+    if(layer==='b'){ info=boneInfo(id); o.material=boneMat();
+      const SKC={cr_frontal:0xf0dca0,cr_parietal:0xc9d6ee,cr_occipital:0xdcc8e8,cr_temporal:0xeec9b0,cr_zygomatique:0xbfe3df,cr_maxillaire:0xcfe6c0,cr_nasal:0xf0c8dc,cr_incisif:0xf2c0b8,cr_base:0xd8d2c4};
+      const sk=SKC[id.replace(/_[dg]$/,'')]; if(sk!==undefined) o.material.color.setHex(sk);
+      if(id.startsWith('dent_')) o.material.color.setHex(0xfbf8f0); }
+    else if(layer==='k'){ info=lmInfo(id); o.material=new THREE.MeshStandardMaterial({color:0x37c6c0,emissive:0x0b3a38,roughness:.35}); }
     else if(layer==='m'){ info=muscleInfo(id); const hue = {tete:.0,cou:.01,epaule:.02,membre_thor:.03,tronc:.0,membre_pelv:.015,queue:.02}[id.replace(/_[dg]$/,'')]||0;
       o.material=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,.5,.42+Math.random()*.08),roughness:.7}); }
     else if(ORG[id]){ info=organInfo(id); o.material=new THREE.MeshStandardMaterial({color:ORG[id][3],roughness:.5}); }
@@ -337,7 +437,7 @@ for(const k in LAYERS){ const L=LAYERS[k]; const b=document.createElement('butto
   b.onclick=()=>{ L.state = L.tri ? (L.state+2)%3 : (L.state?0:2); layerApply(k); if(selected && !LAYERS[selected.split(':')[0]].group.visible) select(null); };
   L.btn=b; chips.appendChild(b); }
 const pbtn=document.createElement('button'); pbtn.className='chip'; pbtn.textContent='✦ Réseaux';
-pbtn.onclick=()=>{ const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; for(const k in L) layerApply(k); };
+pbtn.onclick=()=>{ const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.k.state=0; for(const k in L) layerApply(k); };
 chips.appendChild(pbtn);
 const qbtn=document.createElement('button'); qbtn.className='chip';
 function updateQBtn(){ qbtn.innerHTML='◐ '+QUAL[quality].label; }
@@ -351,7 +451,7 @@ document.getElementById('crx').onclick=()=>document.getElementById('credits').cl
 const listEl=document.getElementById('list'), lb=document.getElementById('lb'), q=document.getElementById('q');
 document.getElementById('lx').onclick=()=>listEl.classList.remove('open');
 const listBtns={};
-const ORDER=['Tête','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Organes thoraciques','Organes abdominaux','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
+const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Organes thoraciques','Organes abdominaux','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
 function natKey(id){ return id.replace(/\d+/g,n=>n.padStart(3,'0')); }
 function buildList(){
   const groups={}; for(const id in infoById){ (groups[infoById[id].group]??=[]).push(id); }
@@ -411,7 +511,8 @@ function doPick(cx,cy){
   const vis=meshes.filter(o=>LAYERS[o.userData.layer].state>0);
   for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
   const hits=ray.intersectObjects(vis,false);
-  const solid=hits.find(h=>LAYERS[h.object.userData.layer].state===2 && !h.object.material.transparent);
+  const mark=hits.find(h=>h.object.userData.layer==='k');
+  const solid=mark||hits.find(h=>LAYERS[h.object.userData.layer].state===2 && !h.object.material.transparent);
   const any=solid||hits.find(h=>LAYERS[h.object.userData.layer].state===2)||hits[0];
   showRipple(cx,cy);
   select(any?any.object.userData.id:null,false);
@@ -423,7 +524,7 @@ loadModel(quality);
 renderer.setAnimationLoop(()=>{ if(fly){ const k=Math.min(1,(performance.now()-fly.t0)/700), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
   controls.target.lerpVectors(fly.ft,fly.tt,e); camera.position.lerpVectors(fly.fp,fly.tp,e); if(k>=1) fly=null; }
   controls.update(); renderer.render(scene,camera); });
-window.__dbg={LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
+window.__dbg={layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
 </script>
 </body>
 </html>

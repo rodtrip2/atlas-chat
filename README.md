@@ -9,7 +9,9 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 ## Fonctionnalités
 
 - 5 couches : squelette, muscles, organes, vaisseaux, nerfs. Le squelette, les muscles et les organes peuvent être opaques, transparents ou masqués.
-- Environ 280 structures cliquables, chacune avec son nom en français et en latin et une courte description.
+- Environ 400 structures cliquables, chacune avec son nom en français et en latin et une fiche : articulations, insertions musculaires et intérêt clinique pour les os.
+- Os détaillés : petits os du carpe et du tarse, métacarpiens et métatarsiens I à V, phalanges doigt par doigt, 28 dents (numérotation de Triadan), sternèbres, os du crâne (délimitation approximative, le crâne du modèle étant d'un seul bloc).
+- 90 repères osseux cliquables, calculés sur la géométrie réelle des os (tête du fémur, trochanters, condyles, épine scapulaire, olécrâne, foramen magnum, processus coronoïde…).
 - Le bouton « ✦ Réseaux » affiche les vaisseaux et les nerfs à travers le squelette et les organes rendus transparents.
 - Recherche par nom (par exemple « T5 », « fémur », « saphène »).
 - Deux résolutions : **Standard** (environ 1 million de triangles, pour téléphone) et **HD** (environ 2,7 millions, pour ordinateur), à choisir avec le bouton « ◐ ».
@@ -18,7 +20,8 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 
 | Couche | Source | Nature |
 |---|---|---|
-| Squelette (144 structures) | « Feline Skeleton Dec », westerly | Modèle réel, os séparés et nommés automatiquement |
+| Squelette (environ 250 structures) | « Feline Skeleton Dec », westerly | Modèle réel, os séparés et nommés automatiquement ; crâne découpé en os de façon approximative |
+| Repères osseux (90) | Calcul | Points extrêmes ou caractéristiques de la géométrie de chaque os |
 | Muscles (7 régions) | « Feline Ecorche Dec », westerly | Modèle réel, aligné sur le squelette, regroupé par régions |
 | Organes abdominaux | « Normal Feline Anatomy – Digestive System », Pixelbeaker | Issu d'un scanner, **autre chat**, redimensionné et recalé approximativement |
 | Cœur, poumons, trachée, œsophage, encéphale | Reconstruction | Ajustés sur les repères du squelette |
@@ -56,5 +59,5 @@ Une erreur de nomenclature, un trajet inexact ? Ouvrez un [ticket](https://githu
 
 1. Télécharger les trois modèles Sketchfab ci-dessus au format glTF/GLB et les placer dans `tools/sources/` sous les noms `feline_skeleton_dec.glb`, `feline_ecorche_dec.glb` et `normal_feline_anatomy_digestive_system.glb`.
 2. Installer les dépendances : `pip install trimesh numpy scipy scikit-image shapely rtree fast-simplification` et `npm i -g @gltf-transform/cli`.
-3. Dans `tools/` : `python split_bones.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
+3. Dans `tools/` : `python split_bones.py`, `python refine_labels.py`, `python landmarks.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
 4. Compresser : `gltf-transform meshopt cat_raw.glb ../models/atlas-standard.glb` et `gltf-transform meshopt cat_raw_hd.glb ../models/atlas-hd.glb`.
