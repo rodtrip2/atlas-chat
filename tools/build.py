@@ -28,6 +28,7 @@ print('bones faces',nb,'groups',len(groups))
 # ---- muscles
 sc=trimesh.load('sources/feline_ecorche_dec.glb'); mm=sc.to_geometry(); mm.merge_vertices()
 mparts=[p for p in mm.split(only_watertight=False) if len(p.faces)>=40]
+MNAMES=json.load(open('data/muscle_names.json'))
 def region(c):
     x,y,z=c; ax=abs(x)
     if z< -1.3 and ax<0.12: return 'queue'
@@ -40,9 +41,9 @@ def region(c):
     return 'tronc'
 nm=0; cnt=defaultdict(int)
 for k,p in enumerate(mparts):
-    r=region(p.centroid); side='' if r in('queue','tete','cou','tronc') else ('_g' if p.centroid[0]>0 else '_d')
-    q=simp(p,R(0.28,0.9),80); nm+=len(q.faces); cnt[r]+=1
-    scene.add_geometry(q,node_name=f'm:{r}{side}:{k}',geom_name=f'm{k}')
+    mn=MNAMES[str(k)]; cnt[mn]+=1
+    q=simp(p,R(0.28,0.9),80); nm+=len(q.faces)
+    scene.add_geometry(q,node_name=f'm:{mn}:{k}',geom_name=f'm{k}')
 print('muscle faces',nm,dict(cnt))
 # ---- organs (Pixelbeaker), registered
 sc=trimesh.load('sources/normal_feline_anatomy_digestive_system.glb')
@@ -72,7 +73,7 @@ for pk in ['recon_thorax.pkl','recon_vn.pkl']:
         if id in ('coeur','poumon_g','poumon_d'): continue
         r = R(0.12,0.35) if id.startswith(('poumon','lobe_')) else (R(0.5,1.0) if L in('v','n') and id!='encephale' else R(0.6,1.0))
         m=simp(m,r,200); scene.add_geometry(m,node_name=L+':'+id,geom_name=L+':'+id); no+=len(m.faces)
-for pk,ratio in [('net_trunk.pkl',R(0.6,1.0)),('net_tree.pkl',R(0.55,1.0)),('net_branch.pkl',R(0.75,1.0)),('net_extra.pkl',R(0.8,1.0)),('net_more.pkl',R(0.8,1.0))]:
+for pk,ratio in [('net_trunk.pkl',R(0.6,1.0)),('net_tree.pkl',R(0.55,1.0)),('net_branch.pkl',R(0.75,1.0)),('net_extra.pkl',R(0.8,1.0)),('net_more.pkl',R(0.8,1.0)),('net_female.pkl',R(0.8,1.0))]:
     D,LAY=pickle.load(open(pk,'rb'))
     for id,ms in D.items():
         if pk=='net_branch.pkl' and id.startswith('n_optique'): continue

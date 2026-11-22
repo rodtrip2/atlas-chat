@@ -256,17 +256,50 @@ function lmInfo(id){ let sd=null, base=id; const m=id.match(/^(.*)_([dg])$/); if
   const r=LMI[base]; let fr=r[0]+(sd?(' – côté '+SIDE[sd][0]):'');
   return {fr,la:r[1],d:r[2],sys:'Repères osseux',group:'Repères osseux'}; }
 
+const MN=" Identification automatique proposée d'après les attaches osseuses et la position de la pièce dans le modèle écorché : à valider. Certaines pièces regroupent plusieurs muscles.";
 const MUSC = {
-  tete:['Muscles de la tête','Musculi capitis',"Muscles de la face et de la mastication. Le muscle temporal et le masséter, très puissants chez le chat, ferment la mâchoire."],
-  cou:['Muscles du cou','Musculi colli',"Muscles qui soutiennent et mobilisent la tête et le cou (brachiocéphalique, sterno-céphalique, splénius…)."],
-  epaule:["Muscles de l'épaule",'Musculi omi',"Muscles qui relient le membre thoracique au tronc et mobilisent la scapula (trapèze, deltoïde, supra- et infra-épineux…)."],
-  membre_thor:['Muscles du membre thoracique','Musculi membri thoracici',"Muscles du bras, de l'avant-bras et de la main : extenseurs et fléchisseurs du coude, du carpe et des doigts."],
-  tronc:['Muscles du tronc','Musculi trunci',"Muscles du dos, du thorax et de la paroi abdominale (long dorsal, intercostaux, obliques, droit de l'abdomen…)."],
-  membre_pelv:['Muscles du membre pelvien','Musculi membri pelvini',"Muscles de la croupe, de la cuisse et de la jambe (fessiers, quadriceps, ischio-jambiers, gastrocnémien…), moteurs du saut."],
-  queue:['Muscles de la queue','Musculi caudae',"Muscles qui mobilisent la queue, impliquée dans l'équilibre et la communication."],
+  temporal:['Muscle temporal','M. temporalis',"Le plus puissant fermeur de la mâchoire : il remplit la fosse temporale et se termine sur le processus coronoïde de la mandibule."],
+  masseter:['Muscle masséter','M. masseter',"Sous l'arcade zygomatique, sur la face latérale de la mandibule : il ferme la mâchoire avec le temporal."],
+  digastrique:['Muscle digastrique','M. digastricus',"De la base du crâne au bord ventral de la mandibule : il ouvre la gueule."],
+  faciaux:['Muscles de la face (groupe)','Mm. faciales',"Muscles superficiels des lèvres, des joues, des paupières et des oreilles, innervés par le nerf facial ; très développés autour des vibrisses et des pavillons auriculaires."],
+  sternocephalique:['Muscle sterno-céphalique','M. sternocephalicus',"Du manubrium du sternum à la tête : il fléchit et incline la tête et le cou."],
+  brachiocephalique:['Muscle brachiocéphalique','M. brachiocephalicus',"De la tête et du cou à l'humérus, en avant de l'épaule : il porte le membre thoracique en avant pendant la marche. La clavicule vestigiale du chat est noyée dans ce muscle."],
+  splenius:['Muscle splénius','M. splenius',"Muscle dorsal du cou qui relève et tourne la tête."],
+  longus_capitis:['Muscles longs de la tête et du cou','Mm. longus capitis et longus colli',"Muscles ventraux, contre les vertèbres cervicales : ils fléchissent la tête et le cou."],
+  cou_profonds:['Muscles profonds du cou (groupe)','Mm. colli profundi',"Muscles dorsaux et latéraux profonds du cou (semi-épineux, intertransversaires…), qui soutiennent et mobilisent la colonne cervicale."],
+  rhomboide:['Muscle rhomboïde','M. rhomboideus',"De la ligne médiane du cou et du garrot au bord dorsal de la scapula : il plaque et tire la scapula vers le haut et l'avant."],
+  trapeze:['Muscle trapèze','M. trapezius',"Muscle plat et superficiel du cou et du garrot, jusqu'à l'épine scapulaire : il élève et fait basculer la scapula."],
+  subscapulaire:['Muscle subscapulaire','M. subscapularis',"Sur la face médiale de la scapula : il stabilise l'épaule et ramène le membre vers le tronc."],
+  deltoide:['Muscle deltoïde','M. deltoideus',"De l'épine scapulaire et de l'acromion à l'humérus : il fléchit l'épaule et écarte le membre."],
+  supra_epineux:['Muscle supra-épineux','M. supraspinatus',"Dans la fosse en avant de l'épine scapulaire, jusqu'au tubercule majeur : il étend et stabilise l'épaule."],
+  infra_epineux:['Muscle infra-épineux','M. infraspinatus',"Dans la fosse en arrière de l'épine scapulaire : il fait pivoter l'humérus vers l'extérieur et stabilise l'épaule."],
+  pectoraux:['Muscles pectoraux','Mm. pectorales',"Du sternum à l'humérus : ils ramènent le membre thoracique sous le corps (adduction) et le tirent vers l'arrière pendant la propulsion."],
+  grand_dorsal:['Muscle grand dorsal','M. latissimus dorsi',"Grand muscle plat du flanc, du dos à l'humérus : il tire le membre vers l'arrière."],
+  triceps:['Muscle triceps brachial','M. triceps brachii',"Grosse masse caudale du bras, de la scapula et de l'humérus à l'olécrâne : principal extenseur du coude, indispensable à l'appui."],
+  brachial:['Muscle brachial','M. brachialis',"À la face latérale de l'humérus, jusqu'au radius et à l'ulna : il fléchit le coude."],
+  biceps_brachial:['Muscle biceps brachial','M. biceps brachii',"De la scapula au radius, à la face crâniale du bras : il fléchit le coude et stabilise l'épaule."],
+  avant_bras_ext:["Muscles extenseurs de l'avant-bras (groupe)",'Mm. extensores carpi et digitorum',"Face crâniale et latérale de l'avant-bras : extenseur radial du carpe, extenseurs communs et latéraux des doigts. Ils étendent le carpe et les doigts."],
+  avant_bras_flech:["Muscles fléchisseurs de l'avant-bras (groupe)",'Mm. flexores carpi et digitorum',"Face caudale et médiale de l'avant-bras : fléchisseurs du carpe et fléchisseurs superficiel et profond des doigts, qui sortent les griffes."],
+  main_intrinseques:['Muscles et tendons de la main (groupe)','Mm. manus',"Petits muscles interosseux et lombricaux, et terminaisons tendineuses des muscles de l'avant-bras sur les doigts."],
+  epaxiaux:['Muscles épaxiaux (groupe)','Mm. epaxiales',"Muscles longs du dos (longissimus, ilio-costal, multifides…), le long de la colonne : ils étendent et courbent le dos ; très puissants chez le chat pour le saut."],
+  dentele:['Muscles dentelés et intercostaux (groupe)','Mm. serrati et intercostales',"Muscle dentelé ventral (qui porte le tronc entre les deux scapulas) et muscles intercostaux de la paroi thoracique."],
+  obliques:["Muscles obliques de l'abdomen (groupe)",'Mm. obliqui abdominis',"Muscles larges de la paroi du flanc (obliques externe et interne, transverse) : ils soutiennent les viscères et participent à l'expiration."],
+  droit_abdomen:["Muscle droit de l'abdomen",'M. rectus abdominis',"Muscle ventral, de part et d'autre de la ligne blanche, du sternum au pubis."],
+  queue:['Muscles de la queue (groupe)','Mm. caudae',"Muscles qui mobilisent la queue, essentielle à l'équilibre et à la communication."],
+  fessiers:['Muscles fessiers','Mm. glutei',"Muscles de la croupe, de l'ilium et du sacrum au grand trochanter : ils étendent la hanche, moteurs de la propulsion."],
+  adducteurs:['Muscles adducteurs de la cuisse','Mm. adductores',"À la face médiale de la cuisse, du pubis et de l'ischium au fémur : ils ramènent le membre sous le corps."],
+  biceps_femoral:['Muscle biceps fémoral','M. biceps femoris',"Grand muscle latéral de la cuisse, de la tubérosité ischiatique au genou et à la jambe : il étend la hanche et fléchit le genou. Le nerf sciatique passe sous lui : on évite d'y injecter."],
+  sartorius:['Muscle sartorius','M. sartorius',"Muscle en bande, à la face crâniale et médiale de la cuisse : il fléchit la hanche."],
+  semitendineux:['Muscles semi-tendineux et semi-membraneux','Mm. semitendinosus et semimembranosus',"Muscles caudaux et médiaux de la cuisse, de la tubérosité ischiatique au tibia : ils étendent la hanche et fléchissent le genou."],
+  quadriceps:['Muscle quadriceps fémoral','M. quadriceps femoris',"Grande masse crâniale de la cuisse (droit fémoral et trois vastes), jusqu'à la patella : principal extenseur du genou."],
+  gastrocnemien:['Muscle gastrocnémien','M. gastrocnemius',"Muscle du mollet, des condyles du fémur à la tubérosité calcanéenne par le tendon calcanéen : il étend le jarret lors de la propulsion."],
+  jambe_cran:['Muscles crâniaux de la jambe (groupe)','M. tibialis cranialis et Mm. extensores digitorum',"Tibial crânial et extenseurs des doigts, à la face crâniale de la jambe : ils fléchissent le jarret et étendent les doigts."],
+  jambe_caud:['Muscles caudaux profonds de la jambe (groupe)','Mm. flexores digitorum profundi',"Fléchisseurs profonds des doigts et poplité, à la face caudale de la jambe."],
+  pied_intrinseques:['Muscles et tendons du pied (groupe)','Mm. pedis',"Petits muscles du pied et terminaisons tendineuses des muscles de la jambe sur les doigts."],
+  non_identifie:['Muscle non identifié','Musculus',"Pièce musculaire que l'identification automatique n'a pas su attribuer."],
 };
-function muscleInfo(id){ const m=id.match(/^(.*?)(?:_([dg]))?$/); const [fr,la,d]=MUSC[m[1]]; const s=m[2];
-  return {fr: fr+(s?(' – côté '+SIDE[s][0]):''), la, d: d+" Dans cette version, les muscles sont regroupés par région et ne sont pas encore identifiés un par un.", sys:'Muscles', group:'Muscles'}; }
+function muscleInfo(id){ const m=id.match(/^(.*?)(?:_([dg]))?$/); const r=MUSC[m[1]]||MUSC.non_identifie; const s=m[2];
+  return {fr: r[0]+(s?(' – côté '+SIDE[s][0]):''), la:r[1], d:r[2]+MN, sys:'Muscles', group:'Muscles'}; }
 const ORG = {
   foie:['Foie','Hepar',"Plus gros organe interne, divisé en plusieurs lobes, avec une vésicule biliaire. Le chat est très exposé à la lipidose hépatique en cas de jeûne prolongé.",'#7a2a22'],
   estomac:['Estomac','Gaster',"Estomac simple, situé surtout à gauche, en arrière du foie. Le modèle inclut aussi le haut du tube digestif.",'#e3b088'],
@@ -345,8 +378,17 @@ const REC = {
   larynx:['o','Larynx et épiglotte','Larynx, Epiglottis',"Organe de la voix et sphincter qui protège les voies respiratoires pendant la déglutition ; l'épiglotte ferme son entrée. Le ronronnement naît des vibrations rapides de ses muscles. Clinique : très réactif chez le chat (laryngospasme), d'où l'anesthésie locale avant l'intubation.",'#efc9cf','Tête et cou'],
   globe:['o','Globe oculaire','Bulbus oculi',"Œil très grand par rapport au crâne. Derrière la rétine, le tapis clair (tapetum lucidum) renvoie la lumière et améliore la vision nocturne ; la pupille se ferme en fente verticale. Taille et position ajustées à l'orbite de ce squelette.",'#e6e2d6','Tête et cou'],
   cornee:['o','Cornée','Cornea',"Partie antérieure transparente du globe, très bombée chez le chat. Clinique : ulcères cornéens et kératites à herpèsvirus fréquents.",'#bfe0f0','Tête et cou'],
+  ovaire:['o','Ovaire','Ovarium',"Caudal au rein, dans le ligament large. La chatte a une ovulation provoquée par l'accouplement. Retiré lors de la stérilisation (ovariectomie).",'#e9b7c0','Appareil urogénital'],
+  trompe:['o','Trompe utérine','Tuba uterina',"Fin conduit qui enveloppe l'ovaire et conduit l'ovule vers la corne utérine ; lieu de la fécondation.",'#e9b7c0','Appareil urogénital'],
+  corne_uterine:['o','Corne utérine','Cornu uteri',"Les deux longues cornes accueillent les fœtus ; l'utérus du chat est bicorne, avec un corps court. Clinique : le pyomètre (infection de l'utérus) touche la chatte non stérilisée.",'#d98f9e','Appareil urogénital'],
+  uterus:['o','Corps de l\'utérus','Corpus uteri',"Court segment où les deux cornes se rejoignent, dans l'entrée du bassin.",'#d98f9e','Appareil urogénital'],
+  col_uterin:['o','Col de l\'utérus','Cervix uteri',"Sphincter musculaire entre l'utérus et le vagin, fermé hors des chaleurs et de la mise bas.",'#cf8494','Appareil urogénital'],
+  vagin:['o','Vagin','Vagina',"Dans le canal pelvien, dorsal à l'urètre ; il se prolonge par le vestibule où s'ouvre l'urètre.",'#d79aa6','Appareil urogénital'],
+  vulve:['o','Vulve','Vulva',"Orifice génital externe, sous l'anus.",'#d99a8a','Appareil urogénital'],
+  uretre_f:['o','Urètre (femelle)','Urethra feminina',"Plus court et plus large que celui du mâle, il s'ouvre sur le plancher du vestibule : les obstructions urétrales sont rares chez la chatte.",'#e8c86a','Appareil urogénital'],
+  mamelles:['o','Mamelles','Mammae',"Quatre paires chez la chatte : deux thoraciques et deux abdominales, chacune avec son mamelon. Clinique : les tumeurs mammaires sont fréquentes et le plus souvent malignes chez la chatte ; une stérilisation précoce en réduit fortement le risque. Positions schématiques sur la paroi ventrale.",'#f0c6b8','Appareil urogénital'],
   uretere:['o','Uretère','Ureter',"Conduit qui mène l'urine du bassinet du rein à la vessie, le long du toit de l'abdomen. Clinique : les calculs d'oxalate de calcium peuvent s'y bloquer (urétérolithiase), cause fréquente d'insuffisance rénale aiguë chez le chat.",'#e8c86a','Appareil urogénital'],
-  uretre:['o','Urètre','Urethra',"Chez le mâle, il quitte la vessie, traverse la prostate, longe le plancher du bassin puis parcourt le pénis. Clinique : sa portion pénienne est très étroite, d'où les obstructions urétrales du chat mâle (bouchons, calculs), une urgence vitale.",'#e8c86a','Appareil urogénital'],
+  uretre:['o','Urètre (mâle)','Urethra masculina',"Chez le mâle, il quitte la vessie, traverse la prostate, longe le plancher du bassin puis parcourt le pénis. Clinique : sa portion pénienne est très étroite, d'où les obstructions urétrales du chat mâle (bouchons, calculs), une urgence vitale.",'#e8c86a','Appareil urogénital'],
   prostate:['o','Prostate','Prostata',"Petite glande qui entoure l'urètre en arrière du col de la vessie ; peu développée chez le chat, elle est rarement malade.",'#d7a07a','Appareil urogénital'],
   bulbo_uretrales:['o','Glandes bulbo-urétrales','Glandulae bulbourethrales',"Paire de petites glandes à la sortie du bassin, de chaque côté de l'urètre ; présentes chez le chat, absentes chez le chien.",'#d7a07a','Appareil urogénital'],
   penis:['o','Pénis','Penis',"Chez le chat, il est orienté vers l'arrière, sous l'anus, et son gland porte de petites épines kératinisées qui dépendent de la testostérone (elles régressent après la castration).",'#d99a8a','Appareil urogénital'],
@@ -480,8 +522,8 @@ function loadModel(q){
       const sk=SKC[id.replace(/_[dg]$/,'')]; if(sk!==undefined) o.material.color.setHex(sk);
       if(id.startsWith('dent_')) o.material.color.setHex(0xfbf8f0); }
     else if(layer==='k'){ info=lmInfo(id); o.material=new THREE.MeshStandardMaterial({color:0x37c6c0,emissive:0x0b3a38,roughness:.35}); }
-    else if(layer==='m'){ info=muscleInfo(id); const hue = {tete:.0,cou:.01,epaule:.02,membre_thor:.03,tronc:.0,membre_pelv:.015,queue:.02}[id.replace(/_[dg]$/,'')]||0;
-      o.material=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,.5,.42+Math.random()*.08),roughness:.7}); }
+    else if(layer==='m'){ info=muscleInfo(id); const nmb=id.replace(/_[dg]$/,''); let hh=0; for(const ch of nmb) hh=(hh*31+ch.charCodeAt(0))%997;
+      o.material=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(0.985+ (hh%40)/1000, .48+(hh%7)/50, .40+(hh%11)/110),roughness:.7}); }
     else if(ORG[id]){ info=organInfo(id); o.material=new THREE.MeshStandardMaterial({color:ORG[id][3],roughness:.5}); }
     else if(REC[id]||REC[id.replace(/_[dg]$/,'')]){ info=recInfo(id); const lung=id.startsWith('poumon')||id.startsWith('lobe_');
       const L=info.sys; 
@@ -497,12 +539,13 @@ function loadModel(q){
     if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
     o.userData.base=o.material.color.clone(); o.userData.op=o.material.opacity; o.userData.tr=o.material.transparent;
     o.userData.id=layer+':'+id; o.userData.layer=layer;
+    { const bb=id.replace(/_[dg]$/,''); if(['prostate','bulbo_uretrales','penis','testicule','deferent','uretre'].includes(bb)) o.userData.sex='m'; if(['ovaire','trompe','corne_uterine','uterus','col_uterin','vagin','vulve','uretre_f','mamelles'].includes(bb)) o.userData.sex='f'; }
     infoById[o.userData.id]=info; (byId[o.userData.id]??=[]).push(o);
     const wp=new THREE.Vector3(), wq=new THREE.Quaternion(), ws=new THREE.Vector3(); o.updateWorldMatrix(true,false); o.matrixWorld.decompose(wp,wq,ws);
     LAYERS[layer].group.add(o); o.position.copy(wp); o.quaternion.copy(wq); o.scale.copy(ws);
     meshes.push(o);
   }
-    for(const k in LAYERS) layerApply(k);
+    for(const k in LAYERS) layerApply(k); applySex();
     if(firstLoad){ buildList(); home(true); firstLoad=false; }
     ld.remove(); updateQBtn();
     const queue=meshes.slice(); (function step(){ if(tok!==loadToken) return; const t0=performance.now(); while(queue.length && performance.now()-t0<12){ const o=queue.shift(); if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); } if(queue.length) setTimeout(step,0); })();
@@ -554,6 +597,7 @@ function select(id,focus){
   if(selected) byId[selected].forEach(o=>{ o.material.color.copy(o.userData.base); o.material.emissive.setHex(0); });
   if(selected&&listBtns[selected]) listBtns[selected].classList.remove('sel');
   selected=id; if(!id){ card.classList.remove('show'); return; }
+  { const o0=byId[id]&&byId[id][0]; if(o0&&o0.userData.sex&&o0.userData.sex!==SEX){ SEX=o0.userData.sex; applySex(); } }
   const isSk=/^(x|y):/.test(id); if(isSk&&!SKM.active) enterSkull(false); if(!isSk&&SKM.active) exitSkull(false);
   const L=LAYERS[id.split(':')[0]]; if(L&&L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
   const box=new THREE.Box3(); byId[id].forEach(o=>{ o.material.color.setHex(0xffb340); o.material.emissive.setHex(0x3a2400); box.expandByObject(o); });
@@ -588,7 +632,7 @@ canvas.addEventListener('pointercancel',e=>endPointer(e,true),{capture:true});
 function doPick(cx,cy){
   const r=canvas.getBoundingClientRect();
   ptr.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ptr,camera);
-  const vis = SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
+  const vis = SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>o.visible&&LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
   const stt=o=>LAYERS[o.userData.layer]?LAYERS[o.userData.layer].state:2;
   for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
   const hits=ray.intersectObjects(vis,false);
@@ -667,7 +711,10 @@ const skLm=mkChip('<span class="dot" style="background:#37c6c0"></span>Repères'
 const skTint=mkChip('Teinte par os',()=>{ SKM.tint=!SKM.tint; SKM.group.traverse(o=>{ if(o.isMesh&&o.userData.layer==='x'&&o.userData.tint!=null){ o.userData.base.setHex(SKM.tint?o.userData.tint:0xe9e1c9); if(selected!==o.userData.id) o.material.color.copy(o.userData.base); } }); skTint.classList.toggle('off',!SKM.tint); },true); skTint.style.display='none';
 for(const b of chips.children){ if(/Liste|Vue|◐/.test(b.textContent)) b.dataset.both='1'; }
 
-window.__dbg={SKM,enterSkull,exitSkull,layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
+let SEX='m';
+function applySex(){ for(const o of meshes){ if(o.userData.sex) o.visible=(o.userData.sex===SEX); } if(typeof sexBtn!=='undefined') sexBtn.innerHTML = SEX==='m'?'♂ Mâle':'♀ Femelle'; }
+const sexBtn=mkChip('♂ Mâle',()=>{ SEX = SEX==='m'?'f':'m'; if(selected){ const o=byId[selected]&&byId[selected][0]; if(o&&o.userData.sex&&o.userData.sex!==SEX) select(null); } applySex(); });
+window.__dbg={applySex,SKM,enterSkull,exitSkull,layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
 </script>
 </body>
 </html>
