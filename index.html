@@ -507,7 +507,7 @@ function layerApply(k){
 }
 
 const loader=new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
-const MV='?v=20261122b';
+const MV='?v=20261122c';
 const QUAL={standard:{url:'models/atlas-standard.glb'+MV,label:'Standard'},hd:{url:'models/atlas-hd.glb'+MV,label:'HD'}};
 let quality=(()=>{ try{ const q=localStorage.getItem('atlas-q'); if(q&&QUAL[q]) return q; }catch(e){} return (matchMedia('(pointer:fine)').matches && innerWidth>900)?'hd':'standard'; })();
 let firstLoad=true, loadToken=0;

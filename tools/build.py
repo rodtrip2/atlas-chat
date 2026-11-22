@@ -46,7 +46,7 @@ for k,p in enumerate(mparts):
     scene.add_geometry(q,node_name=f'm:{mn}:{k}',geom_name=f'm{k}')
 print('muscle faces',nm,dict(cnt))
 # ---- organs (Pixelbeaker), registered
-sc=trimesh.load('sources/normal_feline_anatomy_digestive_system.glb')
+sc=trimesh.load('/mnt/user-data/uploads/normal_feline_anatomy_-_digestive_system__1_.glb')
 MAT={'default_08_Stomach_UpperGI_1':'estomac','default_10_Bladder_1':'vessie','default_01c_Blood_Volume_ab_dec':'vaisseaux_abdo',
      'default_05b_Liver_1':'foie','default_06b_Intestines_dec':'intestins','default_07b_Pancreas_dec':'pancreas','default_09c_Kidneys_1':'reins'}
 RATIO={'foie':R(0.03,0.12),'intestins':R(0.08,0.3),'estomac':R(0.08,0.3),'vessie':R(0.06,0.25),'vaisseaux_abdo':R(0.12,0.45),'pancreas':R(0.12,0.4),'reins':R(0.06,0.25)}
@@ -80,4 +80,23 @@ for pk,ratio in [('net_trunk.pkl',R(0.6,1.0)),('net_tree.pkl',R(0.55,1.0)),('net
         m=trimesh.util.concatenate(ms); m=simp(m,R(0.06,0.2) if id=='peau' else ratio,150); L=LAY[id]
         scene.add_geometry(m,node_name=L+':'+id,geom_name=L+':'+id); no+=len(m.faces)
 print('total with recon',no)
+# ---- garde-fou : aucune structure molle ne doit traverser la peau finale
+from scipy.spatial import cKDTree
+SK=trimesh.load('cat_raw.glb').geometry['p:peau'] if HD else scene.geometry['p:peau']; sp,sf=trimesh.sample.sample_surface(SK,900000,seed=1); sn=SK.face_normals[sf]; ST=cKDTree(sp)
+MARG=0.006 if HD else 0.004; moved=[]
+for gn,g in scene.geometry.items():
+    L=gn.split(':')[0]
+    if L not in 'vnlot' or gn.startswith('o:mamelles'): continue
+    v=np.asarray(g.vertices).copy(); tot=0
+    for _ in range(4):
+        d,i=ST.query(v); sd=((v-sp[i])*sn[i]).sum(1)
+        cand=np.where((sd>-MARG)&(d<0.06))[0]
+        if not len(cand): break
+        out=~np.concatenate([SK.contains(v[cand[j:j+300]]) for j in range(0,len(cand),300)])   # vrai test intérieur/extérieur (rayons)
+        near=(d[cand]<MARG*1.5)&(sd[cand]>-MARG)          # juste sous la surface : normale fiable
+        sel=cand[out|near]
+        if not len(sel): break
+        v[sel]=sp[i[sel]]-sn[i[sel]]*MARG; tot+=len(sel)
+    if tot: g.vertices=v; moved.append((gn,tot))
+print('pushed inside skin:',moved)
 scene.export('cat_raw_hd.glb' if HD else 'cat_raw.glb')

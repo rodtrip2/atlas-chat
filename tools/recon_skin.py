@@ -34,8 +34,12 @@ G=np.zeros(shp,bool); ij=np.floor((P-lo)/h).astype(int); G[ij[:,0],ij[:,1],ij[:,
 print('grid',shp)
 G=ndi.binary_closing(G,iterations=3)
 G=ndi.binary_fill_holes(G)
+for k in range(G.shape[2]): G[:,:,k]=ndi.binary_fill_holes(G[:,:,k])   # cavités ouvertes : pas de coque interne
+for k in range(G.shape[0]): G[k]=ndi.binary_fill_holes(G[k])
 G=ndi.binary_dilation(G,iterations=1)      # subcutis + skin thickness
+np.savez_compressed('skin_grid.npz',G=G,lo=lo,h=h)
 skin=voxmesh(G,lo,h,smooth=15,sigma=1.4)
+skin=max(skin.split(only_watertight=False),key=lambda c:len(c.faces))   # surface externe seule
 print('skin faces',len(skin.faces)); add('peau','p',skin)
 # ---------- pads, claws ----------
 for s,S in [(1,'_g'),(-1,'_d')]:
