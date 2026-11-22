@@ -77,9 +77,10 @@
     <li>« <a href="https://sketchfab.com/3d-models/feline-skeleton-dec-a5d0bb8f55dc4f49b103cd20d65e0b17">Feline Skeleton Dec</a> », par <a href="https://sketchfab.com/westerly">westerly</a></li>
     <li>« <a href="https://sketchfab.com/3d-models/feline-ecorche-dec-4c08824eb4914ff4b6e71b4dc2ba080e">Feline Ecorche Dec</a> », par <a href="https://sketchfab.com/westerly">westerly</a></li>
     <li>« <a href="https://sketchfab.com/3d-models/normal-feline-anatomy-digestive-system-ab92a2a9d9024447b0ed4c080ad17106">Normal Feline Anatomy – Digestive System</a> », par <a href="https://sketchfab.com/pixelbeaker">Pixelbeaker</a></li>
+    <li>« <a href="https://sketchfab.com/3d-models/domestic-cat-felis-catus-7c99ca836d834c39872ecf5e9b5e2087">Domestic Cat (Felis catus)</a> », par <a href="https://sketchfab.com/openededinburgh">The University of Edinburgh Open.Ed</a> (scanner de Tobias Schwarz, Royal (Dick) School of Veterinary Studies) : module « Crâne détaillé », et contrôle de la cavité crânienne et des repères du crâne</li>
   </ul>
   <p>Signaler une erreur ou proposer une correction : <a href="https://github.com/rodtrip2/atlas-chat/issues">tickets GitHub</a>.</p>
-  <p>Licence des modèles : <a href="https://creativecommons.org/licenses/by/4.0/deed.fr">Creative Commons Attribution 4.0</a>. Modifications : géométrie simplifiée, structures séparées et nommées, organes abdominaux redimensionnés et repositionnés, peau du modèle digestif retirée, structures thoraciques, vaisseaux et nerfs ajoutés par reconstruction.</p>
+  <p>Licence des modèles : <a href="https://creativecommons.org/licenses/by/4.0/deed.fr">Creative Commons Attribution 4.0</a>. Modifications : géométrie simplifiée, structures séparées et nommées, organes abdominaux redimensionnés et repositionnés, peau du modèle digestif retirée, crâne scanné recalé sur l'atlas et découpé en os, structures thoraciques, vaisseaux et nerfs ajoutés par reconstruction.</p>
 </div></div>
 
 <div id="bottom">
@@ -136,6 +137,7 @@ const SKULL = {
   cr_parietal:['Os pariétal','Os parietale',"Os du toit de la boîte crânienne, de part et d'autre de la crête sagittale externe où s'insère le muscle temporal."],
   cr_occipital:['Os occipital','Os occipitale',"Os de l'arrière du crâne. Il entoure le foramen magnum, par lequel passe la moelle épinière, et porte les deux condyles occipitaux articulés avec l'atlas (mouvement de « oui » de la tête)."],
   cr_temporal:['Os temporal','Os temporale',"Os de la paroi latérale du crâne. Il contient l'oreille moyenne et interne, dans la bulle tympanique très développée du chat, et porte la fosse mandibulaire de l'articulation temporo-mandibulaire. Clinique : les polypes naso-pharyngés et les otites moyennes du chat se développent dans la bulle, opérée par ostéotomie ventrale."],
+  cr_bulle:['Bulle tympanique','Bulla tympanica',"Renflement ventral de l'os temporal qui contient l'oreille moyenne ; chez le chat, une cloison osseuse la divise en deux compartiments. Clinique : siège des polypes inflammatoires et des otites moyennes, abordé chirurgicalement par ostéotomie de la bulle."],
   cr_zygomatique:['Arcade zygomatique','Arcus zygomaticus',"Arc osseux formé par l'os zygomatique et le processus zygomatique du temporal. Il limite l'orbite latéralement et donne insertion au muscle masséter."],
   cr_maxillaire:['Os maxillaire','Maxilla',"Os de la face qui porte la canine, les prémolaires et la molaire supérieures. Le foramen infra-orbitaire, qui laisse passer le nerf et l'artère infra-orbitaires vers les vibrisses, s'ouvre sur sa face latérale."],
   cr_nasal:['Os nasal','Os nasale',"Os du dos du nez, au-dessus des cavités nasales ; court chez le chat."],
@@ -418,8 +420,8 @@ function loadModel(q){
   ld.textContent='Chargement du modèle ('+QUAL[q].label+')…';
   loader.load(QUAL[q].url, g=>{
     if(tok!==loadToken) return;
-    for(const o of meshes){ o.parent&&o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); }
-    meshes.length=0; for(const k in byId) delete byId[k];
+    for(const o of meshes.filter(o=>LAYERS[o.userData.layer])){ o.parent&&o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); delete byId[o.userData.id]; }
+    { const keep=meshes.filter(o=>!LAYERS[o.userData.layer]); meshes.length=0; meshes.push(...keep); }
   const items=[];
   g.scene.traverse(o=>{ if(!o.isMesh) return; items.push(o); });
   for(const o of items){
@@ -464,11 +466,11 @@ for(const k in LAYERS){ const L=LAYERS[k]; const b=document.createElement('butto
   b.onclick=()=>{ L.state = L.tri ? (L.state+2)%3 : (L.state?0:2); layerApply(k); if(selected && !LAYERS[selected.split(':')[0]].group.visible) select(null); };
   L.btn=b; chips.appendChild(b); }
 const pbtn=document.createElement('button'); pbtn.className='chip'; pbtn.textContent='✦ Réseaux';
-pbtn.onclick=()=>{ const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.k.state=0; for(const k in L) layerApply(k); };
+pbtn.onclick=()=>{ if(SKM.active) exitSkull(false); const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.k.state=0; for(const k in L) layerApply(k); };
 chips.appendChild(pbtn);
 const qbtn=document.createElement('button'); qbtn.className='chip';
 function updateQBtn(){ qbtn.innerHTML='◐ '+QUAL[quality].label; }
-qbtn.onclick=()=>{ quality = quality==='hd'?'standard':'hd'; try{ localStorage.setItem('atlas-q',quality); }catch(e){} updateQBtn(); loadModel(quality); };
+qbtn.onclick=()=>{ if(SKM.active) exitSkull(false); if(SKM.loaded) skullClear(); quality = quality==='hd'?'standard':'hd'; try{ localStorage.setItem('atlas-q',quality); }catch(e){} updateQBtn(); loadModel(quality); };
 chips.appendChild(qbtn); updateQBtn();
 const lbtn=document.createElement('button'); lbtn.className='chip'; lbtn.textContent='☰ Liste'; lbtn.onclick=()=>listEl.classList.add('open'); chips.appendChild(lbtn);
 const vbtn=document.createElement('button'); vbtn.className='chip'; vbtn.textContent='⟲ Vue'; vbtn.onclick=()=>home(); chips.appendChild(vbtn);
@@ -502,7 +504,8 @@ function select(id,focus){
   if(selected) byId[selected].forEach(o=>{ o.material.color.copy(o.userData.base); o.material.emissive.setHex(0); });
   if(selected&&listBtns[selected]) listBtns[selected].classList.remove('sel');
   selected=id; if(!id){ card.classList.remove('show'); return; }
-  const L=LAYERS[id.split(':')[0]]; if(L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
+  const isSk=/^(x|y):/.test(id); if(isSk&&!SKM.active) enterSkull(false); if(!isSk&&SKM.active) exitSkull(false);
+  const L=LAYERS[id.split(':')[0]]; if(L&&L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
   const box=new THREE.Box3(); byId[id].forEach(o=>{ o.material.color.setHex(0xffb340); o.material.emissive.setHex(0x3a2400); box.expandByObject(o); });
   listBtns[id]?.classList.add('sel');
   const inf=infoById[id]; cn.textContent=inf.fr; cl.textContent=inf.la; cs.textContent=inf.sys; cs.style.background=SYSCOL[inf.sys]; cd.textContent=inf.d; card.classList.add('show');
@@ -510,7 +513,7 @@ function select(id,focus){
     const off=camera.position.clone().sub(controls.target).setLength(Math.max(0.6,Math.min(5,sz*2.6))); flyTo(c,c.clone().add(off)); }
 }
 let fly=null; function flyTo(t,p){ fly={t0:performance.now(),ft:controls.target.clone(),fp:camera.position.clone(),tt:t,tp:p}; }
-function home(instant){ const asp=innerWidth/innerHeight, t=new THREE.Vector3(0,0,0);
+function home(instant){ if(typeof SKM!=='undefined'&&SKM.active){ const t=new THREE.Vector3(0,0.62,1.70), p=t.clone().add(new THREE.Vector3(0.75,0.25,0.55).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.6:1.05)); if(instant){controls.target.copy(t);camera.position.copy(p);} else flyTo(t,p); return; } const asp=innerWidth/innerHeight, t=new THREE.Vector3(0,0,0);
   const d=Math.max(4.6, 2.2/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*asp));
   const p=t.clone().add(new THREE.Vector3(0.85,0.35,0.4).normalize().multiplyScalar(d));
   if(instant){ controls.target.copy(t); camera.position.copy(p); } else flyTo(t,p); }
@@ -535,12 +538,13 @@ canvas.addEventListener('pointercancel',e=>endPointer(e,true),{capture:true});
 function doPick(cx,cy){
   const r=canvas.getBoundingClientRect();
   ptr.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ptr,camera);
-  const vis=meshes.filter(o=>LAYERS[o.userData.layer].state>0);
+  const vis = SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
+  const stt=o=>LAYERS[o.userData.layer]?LAYERS[o.userData.layer].state:2;
   for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
   const hits=ray.intersectObjects(vis,false);
-  const mark=hits.find(h=>h.object.userData.layer==='k');
-  const solid=mark||hits.find(h=>LAYERS[h.object.userData.layer].state===2 && !h.object.material.transparent);
-  const any=solid||hits.find(h=>LAYERS[h.object.userData.layer].state===2)||hits[0];
+  const mark=hits.find(h=>h.object.userData.layer==='k'||h.object.userData.layer==='y');
+  const solid=mark||hits.find(h=>stt(h.object)===2 && !h.object.material.transparent);
+  const any=solid||hits.find(h=>stt(h.object)===2)||hits[0];
   showRipple(cx,cy);
   select(any?any.object.userData.id:null,false);
 }
@@ -551,7 +555,69 @@ loadModel(quality);
 renderer.setAnimationLoop(()=>{ if(fly){ const k=Math.min(1,(performance.now()-fly.t0)/700), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
   controls.target.lerpVectors(fly.ft,fly.tt,e); camera.position.lerpVectors(fly.fp,fly.tp,e); if(k>=1) fly=null; }
   controls.update(); renderer.render(scene,camera); });
-window.__dbg={layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
+function skullLoad(ok,err){ loader.load(quality==='hd'?'models/crane-detail-hd.glb':'models/crane-detail-standard.glb',ok,undefined,err); }
+// ---------- Module « Crâne détaillé » (scanner Université d'Édimbourg) ----------
+const SKN=" Vue détaillée : scanner d'un autre chat (Université d'Édimbourg), recalé sur le crâne de l'atlas ; os et dents identifiés par transfert depuis le squelette de l'atlas, limites approximatives.";
+const SKM={group:new THREE.Group(), lm:new THREE.Group(), loaded:false, loading:false, active:false, saved:null, tint:true};
+SKM.group.add(SKM.lm); SKM.group.visible=false; scene.add(SKM.group);
+const SKC2={cr_frontal:0xf0dca0,cr_parietal:0xc9d6ee,cr_occipital:0xdcc8e8,cr_temporal:0xeec9b0,cr_bulle:0xf5b98a,cr_zygomatique:0xbfe3df,cr_maxillaire:0xcfe6c0,cr_nasal:0xf0c8dc,cr_incisif:0xf2c0b8,cr_base:0xd8d2c4};
+function skullProcess(g){
+  const items=[]; g.scene.traverse(o=>{ if(o.isMesh) items.push(o); });
+  const newIds=[];
+  for(const o of items){
+    const cands=[o.userData.name,o.name,o.parent&&o.parent.userData.name,o.parent&&o.parent.name]; const nm=cands.find(n=>n&&n.includes(':'))||'';
+    const [layer,id]=nm.split(':'); if(layer!=='x'&&layer!=='y') continue;
+    let info;
+    if(layer==='x'){ const b=boneInfo(id); info={...b,d:b.d+SKN,group:'Crâne détaillé (scanner)'};
+      const col=SKC2[id.replace(/_[dg]$/,'')]; o.material=new THREE.MeshStandardMaterial({color:id.startsWith('dent_')?0xfbf8f0:(col??0xe9e1c9),roughness:.55});
+      o.userData.tint=col??null; }
+    else { const b=lmInfo(id); info={...b,group:'Crâne détaillé (scanner)'}; o.material=new THREE.MeshStandardMaterial({color:0x37c6c0,emissive:0x0b3a38,roughness:.35}); }
+    { const pa=o.geometry.attributes.position; if(!(pa.array instanceof Float32Array)){ const f=new Float32Array(pa.count*3); for(let i=0;i<pa.count;i++){ f[3*i]=pa.getX(i); f[3*i+1]=pa.getY(i); f[3*i+2]=pa.getZ(i); } o.geometry.setAttribute('position',new THREE.BufferAttribute(f,3)); o.geometry.deleteAttribute('normal'); } }
+    if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+    o.userData.base=o.material.color.clone(); o.userData.op=1; o.userData.tr=false;
+    const key=layer+':'+id; o.userData.id=key; o.userData.layer=layer;
+    if(!infoById[key]) newIds.push(key);
+    infoById[key]=info; (byId[key]??=[]).push(o);
+    const wp=new THREE.Vector3(), wq=new THREE.Quaternion(), ws=new THREE.Vector3(); o.updateWorldMatrix(true,false); o.matrixWorld.decompose(wp,wq,ws);
+    (layer==='y'?SKM.lm:SKM.group).add(o); o.position.copy(wp); o.quaternion.copy(wq); o.scale.copy(ws);
+    meshes.push(o);
+  }
+  if(newIds.length) addListGroup('Crâne détaillé (scanner)',newIds);
+  const queue=items.filter(o=>o.isMesh); (function step(){ const t0=performance.now(); while(queue.length && performance.now()-t0<12){ const o=queue.shift(); if(o.geometry&&!o.geometry.boundsTree) o.geometry.computeBoundsTree(); } if(queue.length) setTimeout(step,0); })();
+  SKM.loaded=true;
+}
+function addListGroup(gname,ids){
+  const h=document.createElement('h3'); h.textContent=gname; lb.appendChild(h);
+  ids.sort((a,b)=>natKey(a).localeCompare(natKey(b)));
+  for(const id of ids){ const b=document.createElement('button'); b.className='it'; b.dataset.s=(infoById[id].fr+' '+infoById[id].la).toLowerCase();
+    b.innerHTML=`${infoById[id].fr}<small>${infoById[id].la}</small>`; b.onclick=()=>{ select(id,true); if(innerWidth<700) listEl.classList.remove('open'); };
+    lb.appendChild(b); listBtns[id]=b; }
+}
+function skullClear(){ for(const grp of [SKM.group]){ const rm=[]; grp.traverse(o=>{ if(o.isMesh) rm.push(o); }); for(const o of rm){ o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); const i=meshes.indexOf(o); if(i>=0) meshes.splice(i,1); delete byId[o.userData.id]; } } SKM.loaded=false; }
+function enterSkull(fly=true){
+  if(SKM.active) return;
+  if(!SKM.loaded){ if(SKM.loading) return; SKM.loading=true; let ld=document.getElementById('load'); if(!ld){ ld=document.createElement('div'); ld.id='load'; document.body.appendChild(ld); } ld.textContent='Chargement du crâne détaillé…';
+    skullLoad(g=>{ SKM.loading=false; skullProcess(g); document.getElementById('load')?.remove(); enterSkull(fly); }, e=>{ SKM.loading=false; const l=document.getElementById('load'); if(l) l.textContent='Impossible de charger le crâne détaillé.'; console.error(e); });
+    return; }
+  SKM.active=true; SKM.saved={}; for(const k in LAYERS){ SKM.saved[k]=LAYERS[k].group.visible; LAYERS[k].group.visible=false; }
+  floor.visible=false; SKM.group.visible=true; setSkullChips(true);
+  if(fly){ const t=new THREE.Vector3(0,0.62,1.70); flyTo(t,t.clone().add(new THREE.Vector3(0.75,0.25,0.55).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.6:1.05))); }
+}
+function exitSkull(fly=true){
+  if(!SKM.active) return; SKM.active=false; SKM.group.visible=false; floor.visible=true;
+  if(selected && /^(x|y):/.test(selected)) select(null);
+  for(const k in LAYERS) LAYERS[k].group.visible=LAYERS[k].state>0; setSkullChips(false); if(fly) home();
+}
+const skChips=[];
+function setSkullChips(on){ for(const b of chips.children){ b.style.display = (b.dataset.sk==='1') ? (on?'':'none') : (b.dataset.both==='1' ? '' : (on?'none':'')); } }
+function mkChip(label,fn,sk,both){ const b=document.createElement('button'); b.className='chip'; b.innerHTML=label; b.onclick=fn; if(sk) b.dataset.sk='1'; if(both) b.dataset.both='1'; chips.appendChild(b); return b; }
+const skBtn=mkChip('◎ Crâne détaillé',()=>enterSkull(true));
+const skBack=mkChip('← Atlas complet',()=>exitSkull(true),true); skBack.style.display='none';
+const skLm=mkChip('<span class="dot" style="background:#37c6c0"></span>Repères',()=>{ SKM.lm.visible=!SKM.lm.visible; skLm.classList.toggle('off',!SKM.lm.visible); },true); skLm.style.display='none';
+const skTint=mkChip('Teinte par os',()=>{ SKM.tint=!SKM.tint; SKM.group.traverse(o=>{ if(o.isMesh&&o.userData.layer==='x'&&o.userData.tint!=null){ o.userData.base.setHex(SKM.tint?o.userData.tint:0xe9e1c9); if(selected!==o.userData.id) o.material.color.copy(o.userData.base); } }); skTint.classList.toggle('off',!SKM.tint); },true); skTint.style.display='none';
+for(const b of chips.children){ if(/Liste|Vue|◐/.test(b.textContent)) b.dataset.both='1'; }
+
+window.__dbg={SKM,enterSkull,exitSkull,layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
 </script>
 </body>
 </html>

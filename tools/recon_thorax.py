@@ -97,7 +97,7 @@ out['oesophage']=('o',tube([[0,0.585,1.47],[0.02,0.545,1.30],[0.018,0.52,1.12],[
 h2=0.005; bx=np.arange(-0.14,0.14,h2); by=np.arange(0.52,0.90,h2); bz=np.arange(1.48,1.92,h2)
 BX,BY,BZ=np.meshgrid(bx,by,bz,indexing='ij')
 def ell(c,r): return ((BX-c[0])/r[0])**2+((BY-c[1])/r[1])**2+((BZ-c[2])/r[2])**2<1
-brain=(ell([0.032,0.768,1.675],[0.045,0.058,0.082])|ell([-0.032,0.768,1.675],[0.045,0.058,0.082])|
+brain=(ell([0.032,0.768,1.675],[0.052,0.066,0.094])|ell([-0.032,0.768,1.675],[0.052,0.066,0.094])|
        ell([0,0.745,1.598],[0.05,0.042,0.03])|ell([0,0.722,1.565],[0.022,0.022,0.04])|
        ell([0.012,0.74,1.752],[0.012,0.018,0.022])|ell([-0.012,0.74,1.752],[0.012,0.018,0.022]))
 del X,Y,Z,P,t,rad,prof,bym,vert,med,dmed,below,cav,lung
@@ -110,6 +110,12 @@ v=np.asarray(bm.vertices); d=v-ctr; dist=np.linalg.norm(d,axis=1); dirs=d/dist[:
 loc,ri,_=sk.ray.intersects_location(np.repeat(ctr[None],len(v),0),dirs,multiple_hits=False)
 first=np.full(len(v),9.0); 
 for p,i in zip(loc,ri): first[i]=min(first[i],np.linalg.norm(p-ctr))
+# also conform to the real inner wall of the registered CT skull (Edinburgh)
+ed=pickle.load(open('edi_small_reg.pkl','rb'))
+loc2,ri2,_=ed.ray.intersects_location(np.repeat(ctr[None],len(v),0),dirs,multiple_hits=False)
+first2=np.full(len(v),9.0)
+for p_,i_ in zip(loc2,ri2): first2[i_]=min(first2[i_],np.linalg.norm(p_-ctr))
+first=np.minimum(first,np.where(first2<9,first2,first))
 lim=first-0.004; newd=np.where(dist>lim,lim,dist)
 print('brain vertices clipped',(dist>lim).mean().round(3))
 bm.vertices=ctr+dirs*newd[:,None]; trimesh.smoothing.filter_taubin(bm,iterations=5)

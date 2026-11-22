@@ -6,3 +6,4 @@ Les fichiers de ce dossier sont des œuvres dérivées diffusées sous licence C
 - « Normal Feline Anatomy – Digestive System », par Pixelbeaker — https://sketchfab.com/3d-models/normal-feline-anatomy-digestive-system-ab92a2a9d9024447b0ed4c080ad17106
 
 Modifications : géométrie simplifiée, structures séparées et nommées, organes abdominaux redimensionnés et repositionnés, peau du modèle digestif retirée, structures reconstruites ajoutées (thorax, vaisseaux, nerfs).
+- « Domestic Cat (Felis catus) », par The University of Edinburgh Open.Ed — https://sketchfab.com/3d-models/domestic-cat-felis-catus-7c99ca836d834c39872ecf5e9b5e2087 (fichiers crane-detail-*.glb)
