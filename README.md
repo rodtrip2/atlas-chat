@@ -24,7 +24,8 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 | Repères osseux (90) | Calcul | Points extrêmes ou caractéristiques de la géométrie de chaque os |
 | Muscles (7 régions) | « Feline Ecorche Dec », westerly | Modèle réel, aligné sur le squelette, regroupé par régions |
 | Organes abdominaux | « Normal Feline Anatomy – Digestive System », Pixelbeaker | Issu d'un scanner, **autre chat**, redimensionné et recalé approximativement |
-| Cœur, poumons, trachée, œsophage, encéphale | Reconstruction | Ajustés sur les repères du squelette |
+| Cœur (4 cavités), poumons (lobes), trachée, larynx, œsophage, encéphale, yeux | Reconstruction | Ajustés sur les repères du squelette |
+| Voies urinaires basses, appareil génital mâle, rectum, appareil hyoïde | Reconstruction | Ajustés sur les repères du squelette et du bassin |
 | Vaisseaux et nerfs (hors abdomen) | Reconstruction | Ajustés sur les repères du squelette |
 
 ### Méthode de reconstruction
@@ -37,6 +38,10 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 - **Arbre bronchique et vaisseaux pulmonaires :** générés par croissance (algorithme de colonisation de l'espace) dans le volume de chaque poumon.
 
 Les scripts sont dans [`tools/`](tools/).
+
+### Référence de vérification
+
+Les planches félines de *Hill's Atlas of Veterinary Clinical Anatomy* (Hill's Pet Nutrition, 2007) (cœur, thorax, denture, appareil urinaire, œil) ont servi à contrôler et compléter la reconstruction : lobes pulmonaires, cavités cardiaques, voies urinaires basses, larynx, appareil hyoïde, yeux, formule dentaire. Aucune illustration de cet atlas n'est reproduite dans ce projet.
 
 ## Crédits et licences
 
@@ -59,5 +64,5 @@ Une erreur de nomenclature, un trajet inexact ? Ouvrez un [ticket](https://githu
 
 1. Télécharger les trois modèles Sketchfab ci-dessus au format glTF/GLB et les placer dans `tools/sources/` sous les noms `feline_skeleton_dec.glb`, `feline_ecorche_dec.glb` et `normal_feline_anatomy_digestive_system.glb`.
 2. Installer les dépendances : `pip install trimesh numpy scipy scikit-image shapely rtree fast-simplification` et `npm i -g @gltf-transform/cli`.
-3. Dans `tools/` : `python split_bones.py`, `python refine_labels.py`, `python landmarks.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
+3. Dans `tools/` : `python split_bones.py`, `python refine_labels.py`, `python landmarks.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, `python recon_extra.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
 4. Compresser : `gltf-transform meshopt cat_raw.glb ../models/atlas-standard.glb` et `gltf-transform meshopt cat_raw_hd.glb ../models/atlas-hd.glb`.

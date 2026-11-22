@@ -25,6 +25,21 @@ R=0.112
 prof=np.where(t<0.32, R*np.sqrt(np.clip(1-((0.32-t)/0.36)**2,0,1)), R*np.sqrt(np.clip(1-((t-0.32)/0.68)**2,0,1))*(1-0.25*np.clip(t-0.32,0,1)))
 heart=(rad<prof)&(t>-0.05)&(t<1.0)
 out['coeur']=('o',voxmesh(heart,np.array([xs[0],ys[0],zs[0]]),h,smooth=10,sigma=1.2))
+_u=np.array([1.0,0,0])-ax*ax[0]; _u/=np.linalg.norm(_u); _w=np.cross(ax,_u); _w = _w if _w[2]>0 else -_w
+radial=P-(P@ax)[...,None]*ax
+cr=(_w-_u); cr/=np.linalg.norm(cr)          # cranial-right direction
+score=radial@cr
+atr=t<0.30
+ch={'atrium_d':heart&atr&(score>0),'atrium_g':heart&atr&(score<=0),
+    'ventricule_d':heart&~atr&(score>0.012)&(t<0.86),'ventricule_g':heart&~atr&((score<=0.012)|(t>=0.86))}
+from scipy.ndimage import binary_erosion
+for k_,m_ in ch.items():
+    others=np.zeros_like(heart)
+    for k2,m2 in ch.items():
+        if k2!=k_: others|=m2
+    from scipy.ndimage import binary_dilation as _bd
+    m_=m_&~_bd(others,iterations=1)
+    out[k_]=('o',voxmesh(m_,np.array([xs[0],ys[0],zs[0]]),h,smooth=8,sigma=0.9))
 # --- diaphragm surface from liver+stomach cranial surface
 V=np.vstack([np.asarray(O['foie'].vertices),np.asarray(O['estomac'].vertices)])
 gx=np.round((V[:,0]-xs[0])/h).astype(int); gy=np.round((V[:,1]-ys[0])/h).astype(int)
@@ -56,6 +71,20 @@ for side,cond,nm in [('g',X>0,'poumon_g'),('d',X<0,'poumon_d')]:
         sizes=np.bincount(lb.ravel()); sizes[0]=0; m=lb==sizes.argmax()
     out[nm]=('o',voxmesh(m,np.array([xs[0],ys[0],zs[0]]),h,smooth=12,sigma=1.3))
     print(nm,len(out[nm][1].faces),np.round(out[nm][1].bounds,3).tolist())
+    zf1=0.80+(Y-0.10)*0.22; zf2=0.56+(Y-0.05)*0.48
+    if side=='d':
+        lobes={'lobe_cranial_d':m&(Z>=zf1),'lobe_moyen_d':m&(Z<zf1)&(Z>=zf2),
+               'lobe_accessoire':m&(Z<zf2)&(Z<0.62)&(X>-0.075)&(Y<0.40),
+               'lobe_caudal_d':m&(Z<zf2)&~((Z<0.62)&(X>-0.075)&(Y<0.40))}
+    else:
+        lobes={'lobe_cranial_cr_g':m&(Z>=zf1),'lobe_cranial_cd_g':m&(Z<zf1)&(Z>=zf2),'lobe_caudal_g':m&(Z<zf2)}
+    from scipy.ndimage import binary_dilation as _bd
+    for k_,m_ in lobes.items():
+        oth=np.zeros_like(m)
+        for k2,m2 in lobes.items():
+            if k2!=k_: oth|=m2
+        mm_=m_&~_bd(oth,iterations=1)
+        out[k_]=('o',voxmesh(mm_,np.array([xs[0],ys[0],zs[0]]),h,smooth=10,sigma=1.1)); print(' ',k_,len(out[k_][1].faces))
 pickle.dump({'zd':zd,'xs':xs,'ys':ys},open('diaph.pkl','wb'))
 # --- trachea, bronchi, esophagus
 carina=np.array([0,0.44,0.79])

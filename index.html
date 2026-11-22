@@ -69,7 +69,9 @@
   <h2>Sources et avertissements</h2>
   <p class="warn">Version de travail. Les noms des os et les régions musculaires ont été attribués automatiquement d'après leur position : ils doivent être relus par un enseignant en anatomie avant tout usage pédagogique.</p>
   <p class="warn">Les organes abdominaux proviennent du scanner d'un autre chat. Ils ont été mis à l'échelle et placés de façon approximative dans ce squelette.</p>
-  <p class="warn">Le cœur, les poumons, la trachée, l'œsophage, l'encéphale, les vaisseaux hors abdomen et les nerfs sont des reconstructions schématiques, ajustées sur les repères de ce squelette (canal vertébral relevé vertèbre par vertèbre, cage thoracique, cavité crânienne, axes des os des membres, surface du foie pour le diaphragme). Les vaisseaux et nerfs intercostaux suivent chaque côte réelle, les branches digitales suivent les phalanges réelles, et l'arbre bronchique et les vaisseaux pulmonaires ont été générés par croissance dans le volume des poumons. Leur trajet et leur forme restent approximatifs.</p>
+  <p class="warn">Le cœur, les poumons, la trachée, l'œsophage, le larynx, l'appareil hyoïde, les yeux, les voies urinaires basses et l'appareil génital, le rectum, l'encéphale, les vaisseaux hors abdomen et les nerfs sont des reconstructions schématiques, ajustées sur les repères de ce squelette (canal vertébral relevé vertèbre par vertèbre, cage thoracique, cavité crânienne, axes des os des membres, surface du foie pour le diaphragme). Les vaisseaux et nerfs intercostaux suivent chaque côte réelle, les branches digitales suivent les phalanges réelles, et l'arbre bronchique et les vaisseaux pulmonaires ont été générés par croissance dans le volume des poumons. Leur trajet et leur forme restent approximatifs.</p>
+  <h3>Référence de vérification</h3>
+  <p>Planches félines (cœur, thorax, denture, appareil urinaire, œil) de <i>Hill's Atlas of Veterinary Clinical Anatomy</i> (Hill's Pet Nutrition, 2007), utilisées pour contrôler et compléter la reconstruction : lobes pulmonaires, cavités cardiaques, voies urinaires basses, larynx, appareil hyoïde, yeux. Aucune illustration de cet atlas n'est reproduite ici.</p>
   <h3>Modèles 3D utilisés (licence CC BY 4.0)</h3>
   <ul>
     <li>« <a href="https://sketchfab.com/3d-models/feline-skeleton-dec-a5d0bb8f55dc4f49b103cd20d65e0b17">Feline Skeleton Dec</a> », par <a href="https://sketchfab.com/westerly">westerly</a></li>
@@ -102,6 +104,7 @@ const ORD = {I:'premier',II:'deuxième',III:'troisième',IV:'quatrième',V:'cinq
 // [nom, latin, description, genre ('f' si féminin), groupe]
 const BONES = {
   mandibule:['Mandibule','Mandibula',"Mâchoire inférieure, formée de deux hémimandibules unies à l'avant par une symphyse fibreuse. Elle s'articule avec l'os temporal (articulation temporo-mandibulaire), qui chez le chat ne permet presque que des mouvements verticaux, en cisaille. Insertions : muscles masséter, temporal (sur le processus coronoïde) et digastrique. Clinique : la disjonction de la symphyse est une lésion classique des chutes (« syndrome du chat parachutiste »).",'f','Tête'],
+  hyoide:['Appareil hyoïde','Apparatus hyoideus',"Chaîne de petits os qui suspend la langue et le larynx à la base du crâne (os stylohyoïdes, épihyoïdes, cératohyoïdes, basihyoïde et thyrohyoïdes). Chez le chat, il est entièrement ossifié, alors qu'il est en partie cartilagineux chez les grands félins qui rugissent. Structure reconstruite de façon schématique, ajustée sur ce squelette.",'m','Tête'],
   manubrium:['Manubrium du sternum','Manubrium sterni',"Première sternèbre, la plus crâniale. Elle porte l'articulation des premières côtes et donne insertion aux muscles sterno-céphalique et pectoraux.",'m','Thorax'],
   xiphoide:['Processus xiphoïde','Processus xiphoideus',"Dernière sternèbre, prolongée par le cartilage xiphoïdien. Il donne insertion au diaphragme et à la ligne blanche ; c'est un repère palpable de la limite thorax-abdomen.",'m','Thorax'],
   sacrum:['Sacrum','Os sacrum',"Trois vertèbres sacrées soudées. Ses ailes s'articulent avec les ilium (articulation sacro-iliaque). Clinique : la luxation sacro-iliaque est fréquente après un traumatisme (accident de voiture), souvent associée à des fractures du bassin.",'m','Colonne vertébrale'],
@@ -155,6 +158,7 @@ function toothInfo(id){
   if(t==='C') d+=" Canine longue et pointue, pour saisir et tuer la proie ; c'est la dent la plus souvent fracturée chez le chat.";
   if(sup&&t==='P4'||!sup&&t==='M1'){ fr+=' – carnassière'; d+=" Carnassière : elle forme avec sa vis-à-vis une paire de lames qui tranche la viande."; }
   if(sup&&t==='M1') d+=" Molaire supérieure minuscule, presque sans rôle masticatoire.";
+  if(sup) d+=" Les deux P2 supérieures, très petites, ne figurent pas sur ce modèle.";
   d+=" Clinique : les lésions de résorption dentaire (« néck lesions ») touchent surtout les prémolaires et molaires.".replace('néck','neck');
   return {fr, la:`Dens ${{I1:'incisivus I',I2:'incisivus II',I3:'incisivus III',C:'caninus',P2:'premolaris II',P3:'premolaris III',P4:'premolaris IV',M1:'molaris I',P:'premolaris'}[t]} ${sup?'superior':'inferior'}`, d, sys:'Squelette', group:'Dents'};
 }
@@ -280,6 +284,28 @@ const REC = {
   trachee:['o','Trachée','Trachea',"Anneaux cartilagineux ouverts dorsalement. Elle se divise en deux bronches principales (carène) vers la 5e–6e vertèbre thoracique.",'#eed6da',OT],
   bronches:['o','Bronches principales','Bronchi principales',"Elles conduisent l'air de la carène vers chaque poumon.",'#eed6da',OT],
   arbre_bronchique:['o','Arbre bronchique','Arbor bronchialis',"Bronches lobaires, segmentaires puis bronchioles. Ici, l'arbre a été généré par croissance dans le volume réel de chaque poumon : la ramification est réaliste dans son principe, pas dans le détail. L'asthme félin touche surtout les petites bronches.",'#f3e4d6',OT],
+  atrium_d:['o','Atrium droit','Atrium dextrum',"Cavité qui reçoit le sang pauvre en oxygène des veines caves et du sinus coronaire, puis le chasse vers le ventricule droit à travers la valve tricuspide. Son auricule se projette crânialement. Les quatre cavités sont délimitées ici de façon schématique.",'#c04a55',OT],
+  atrium_g:['o','Atrium gauche','Atrium sinistrum',"Cavité qui reçoit le sang oxygéné des veines pulmonaires. Clinique : sa dilatation, visible à l'échographie, est le marqueur clé de la cardiomyopathie hypertrophique féline et favorise la formation de caillots (thrombo-embolie aortique). Délimitation schématique.",'#b33a48',OT],
+  ventricule_d:['o','Ventricule droit','Ventriculus dexter',"Cavité à paroi fine qui envoie le sang vers les poumons par le tronc pulmonaire. Il s'enroule sur la face crâniale et droite du ventricule gauche. Délimitation schématique.",'#c9505c',OT],
+  ventricule_g:['o','Ventricule gauche','Ventriculus sinister',"Cavité à paroi épaisse qui forme l'apex du cœur et envoie le sang dans l'aorte. Ses muscles papillaires et cordages tendineux tiennent la valve mitrale. Clinique : dans la cardiomyopathie hypertrophique, sa paroi et le septum interventriculaire s'épaississent. Délimitation schématique.",'#a52f3c',OT],
+  lobe_cranial_d:['o','Lobe crânial du poumon droit','Lobus cranialis pulmonis dextri',"Lobe le plus crânial, qui remonte jusqu'à l'entrée du thorax. Les scissures entre les lobes sont tracées de façon schématique.",'#efa3ae',OT],
+  lobe_moyen_d:['o','Lobe moyen du poumon droit','Lobus medius pulmonis dextri',"Lobe ventral situé en regard du cœur, propre au poumon droit. Il est souvent le premier touché lors d'une bronchopneumonie par fausse déglutition. Scissures schématiques.",'#f2b0ba',OT],
+  lobe_caudal_d:['o','Lobe caudal du poumon droit','Lobus caudalis pulmonis dextri',"Le plus grand lobe, dorso-caudal, appuyé sur le diaphragme. Scissures schématiques.",'#eb98a4',OT],
+  lobe_accessoire:['o','Lobe accessoire du poumon droit','Lobus accessorius pulmonis dextri',"Petit lobe médial et caudal, logé entre le cœur, le diaphragme et le médiastin, autour de la veine cave caudale. Position schématique.",'#e88d9b',OT],
+  lobe_cranial_cr_g:['o','Lobe crânial du poumon gauche (partie crâniale)','Lobus cranialis pulmonis sinistri, pars cranialis',"Partie crâniale du lobe crânial gauche, qui remonte jusqu'à l'entrée du thorax. Scissures schématiques.",'#efa3ae',OT],
+  lobe_cranial_cd_g:['o','Lobe crânial du poumon gauche (partie caudale)','Lobus cranialis pulmonis sinistri, pars caudalis',"Partie caudale du lobe crânial gauche, en regard du cœur ; le poumon gauche n'a pas de lobe moyen. Scissures schématiques.",'#f2b0ba',OT],
+  lobe_caudal_g:['o','Lobe caudal du poumon gauche','Lobus caudalis pulmonis sinistri',"Grand lobe dorso-caudal, appuyé sur le diaphragme. Scissures schématiques.",'#eb98a4',OT],
+  larynx:['o','Larynx et épiglotte','Larynx, Epiglottis',"Organe de la voix et sphincter qui protège les voies respiratoires pendant la déglutition ; l'épiglotte ferme son entrée. Le ronronnement naît des vibrations rapides de ses muscles. Clinique : très réactif chez le chat (laryngospasme), d'où l'anesthésie locale avant l'intubation.",'#efc9cf','Tête et cou'],
+  globe:['o','Globe oculaire','Bulbus oculi',"Œil très grand par rapport au crâne. Derrière la rétine, le tapis clair (tapetum lucidum) renvoie la lumière et améliore la vision nocturne ; la pupille se ferme en fente verticale. Taille et position ajustées à l'orbite de ce squelette.",'#e6e2d6','Tête et cou'],
+  cornee:['o','Cornée','Cornea',"Partie antérieure transparente du globe, très bombée chez le chat. Clinique : ulcères cornéens et kératites à herpèsvirus fréquents.",'#bfe0f0','Tête et cou'],
+  uretere:['o','Uretère','Ureter',"Conduit qui mène l'urine du bassinet du rein à la vessie, le long du toit de l'abdomen. Clinique : les calculs d'oxalate de calcium peuvent s'y bloquer (urétérolithiase), cause fréquente d'insuffisance rénale aiguë chez le chat.",'#e8c86a','Appareil urogénital'],
+  uretre:['o','Urètre','Urethra',"Chez le mâle, il quitte la vessie, traverse la prostate, longe le plancher du bassin puis parcourt le pénis. Clinique : sa portion pénienne est très étroite, d'où les obstructions urétrales du chat mâle (bouchons, calculs), une urgence vitale.",'#e8c86a','Appareil urogénital'],
+  prostate:['o','Prostate','Prostata',"Petite glande qui entoure l'urètre en arrière du col de la vessie ; peu développée chez le chat, elle est rarement malade.",'#d7a07a','Appareil urogénital'],
+  bulbo_uretrales:['o','Glandes bulbo-urétrales','Glandulae bulbourethrales',"Paire de petites glandes à la sortie du bassin, de chaque côté de l'urètre ; présentes chez le chat, absentes chez le chien.",'#d7a07a','Appareil urogénital'],
+  penis:['o','Pénis','Penis',"Chez le chat, il est orienté vers l'arrière, sous l'anus, et son gland porte de petites épines kératinisées qui dépendent de la testostérone (elles régressent après la castration).",'#d99a8a','Appareil urogénital'],
+  testicule:['o','Testicule','Testis',"Dans le scrotum, juste sous l'anus. Ils descendent normalement dans les premières semaines de vie ; un testicule non descendu (cryptorchidie) reste dans l'abdomen ou l'aine.",'#e3c0b0','Appareil urogénital'],
+  deferent:['o','Conduit déférent','Ductus deferens',"Il conduit les spermatozoïdes du testicule à l'urètre en passant par le canal inguinal, puis croise l'uretère avant de rejoindre l'urètre au niveau de la prostate. Ligaturé lors de la castration.",'#e3c0b0','Appareil urogénital'],
+  rectum:['o','Rectum','Rectum',"Dernière portion du gros intestin, dans le canal pelvien, jusqu'à l'anus. Clinique : un bassin rétréci par une fracture peut gêner son passage et favoriser la constipation chronique et le mégacôlon.",'#c99a72','Organes abdominaux'],
   oesophage:['o','Œsophage','Oesophagus',"Dans le cou, il est dorsal et un peu à gauche de la trachée ; il traverse le thorax au-dessus du cœur puis le diaphragme pour rejoindre l'estomac.",'#e3ae8c',OT],
   aorte:['v','Aorte (thoracique)','Aorta thoracica',"Aorte ascendante, crosse puis aorte descendante le long des corps vertébraux, prolongée par l'aorte abdominale.",A,VT],
   tronc_bc:['v','Tronc brachiocéphalique','Truncus brachiocephalicus',"Première branche de la crosse aortique : il donne les carotides communes et l'artère subclavière droite.",A,VT],
@@ -408,10 +434,11 @@ function loadModel(q){
     else if(layer==='m'){ info=muscleInfo(id); const hue = {tete:.0,cou:.01,epaule:.02,membre_thor:.03,tronc:.0,membre_pelv:.015,queue:.02}[id.replace(/_[dg]$/,'')]||0;
       o.material=new THREE.MeshStandardMaterial({color:new THREE.Color().setHSL(hue,.5,.42+Math.random()*.08),roughness:.7}); }
     else if(ORG[id]){ info=organInfo(id); o.material=new THREE.MeshStandardMaterial({color:ORG[id][3],roughness:.5}); }
-    else if(REC[id]||REC[id.replace(/_[dg]$/,'')]){ info=recInfo(id); const lung=id.startsWith('poumon');
+    else if(REC[id]||REC[id.replace(/_[dg]$/,'')]){ info=recInfo(id); const lung=id.startsWith('poumon')||id.startsWith('lobe_');
       const L=info.sys; 
       if(L==='Vaisseaux') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.32,clearcoat:.7,clearcoatRoughness:.25});
       else if(L==='Nerfs' && id!=='encephale') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.55,sheen:.8,sheenColor:new THREE.Color('#fff4c8'),sheenRoughness:.5});
+      else if(id.startsWith('cornee')) o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.05,clearcoat:1,transparent:true,opacity:.45,depthWrite:false});
       else o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:lung?.75:.45,clearcoat:lung?0:.3,transparent:lung,opacity:lung?.5:1,depthWrite:!lung}); }
     else continue;
     { const pa=o.geometry.attributes.position; if(!(pa.array instanceof Float32Array)){ const f=new Float32Array(pa.count*3); for(let i=0;i<pa.count;i++){ f[3*i]=pa.getX(i); f[3*i+1]=pa.getY(i); f[3*i+2]=pa.getZ(i); } o.geometry.setAttribute('position',new THREE.BufferAttribute(f,3)); o.geometry.deleteAttribute('normal'); } }
@@ -451,7 +478,7 @@ document.getElementById('crx').onclick=()=>document.getElementById('credits').cl
 const listEl=document.getElementById('list'), lb=document.getElementById('lb'), q=document.getElementById('q');
 document.getElementById('lx').onclick=()=>listEl.classList.remove('open');
 const listBtns={};
-const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Organes thoraciques','Organes abdominaux','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
+const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Tête et cou','Organes thoraciques','Organes abdominaux','Appareil urogénital','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
 function natKey(id){ return id.replace(/\d+/g,n=>n.padStart(3,'0')); }
 function buildList(){
   const groups={}; for(const id in infoById){ (groups[infoById[id].group]??=[]).push(id); }
