@@ -8,13 +8,14 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 
 ## Fonctionnalités
 
-- 8 couches : squelette, muscles, organes, vaisseaux, nerfs, système lymphatique, tendons et ligaments, repères osseux. Le squelette, les muscles et les organes peuvent être opaques, transparents ou masqués.
-- Environ 660 structures cliquables, chacune avec son nom en français et en latin et une fiche : articulations, insertions musculaires et intérêt clinique pour les os.
+- 9 couches : peau, squelette, muscles, organes, vaisseaux, nerfs, système lymphatique, tendons et ligaments, repères osseux. Le squelette, les muscles et les organes peuvent être opaques, transparents ou masqués.
+- Environ 690 structures cliquables, chacune avec son nom en français et en latin et une fiche : articulations, insertions musculaires et intérêt clinique pour les os.
 - Os détaillés : petits os du carpe et du tarse, métacarpiens et métatarsiens I à V, phalanges doigt par doigt, 28 dents (numérotation de Triadan), sternèbres, os du crâne (délimitation approximative, le crâne du modèle étant d'un seul bloc).
 - 90 repères osseux cliquables, calculés sur la géométrie réelle des os (tête du fémur, trochanters, condyles, épine scapulaire, olécrâne, foramen magnum, processus coronoïde…).
 - Le bouton « ✦ Réseaux » affiche les vaisseaux et les nerfs à travers le squelette et les organes rendus transparents.
 - Recherche par nom (par exemple « T5 », « fémur », « saphène »).
 - Module **« ◎ Crâne détaillé »** : scanner haute résolution d'un crâne de chat (Université d'Édimbourg), recalé sur l'atlas, avec os, mandibule et dents identifiés et 26 repères.
+- Module **« ▦ Coupe de peau »** : bloc schématique de l'épiderme (couches), du derme, de l'hypoderme et des annexes (follicules pileux composés, glandes sébacées et sudoripares, muscles arrecteurs, plexus vasculaires, nerfs, coussinet tylotriche).
 - Deux résolutions : **Standard** (environ 1 million de triangles, pour téléphone) et **HD** (environ 2,7 millions, pour ordinateur), à choisir avec le bouton « ◐ ».
 
 ## Origine des données
@@ -30,6 +31,7 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 | Voies urinaires basses, appareils génitaux mâle et femelle (bouton ♂/♀), mamelles, rectum, appareil hyoïde | Reconstruction | Ajustés sur les repères du squelette et du bassin |
 | Système lymphatique (nœuds palpables et profonds, conduit thoracique, thymus…) | Reconstruction | Positions anatomiques usuelles, ajustées sur le squelette |
 | Tendons, ligaments, ménisques, disques intervertébraux | Reconstruction | Ancrés sur les repères osseux et les phalanges ; disques mesurés sur les corps vertébraux |
+| Peau (enveloppe calculée autour de l'écorché et du squelette), coussinets, griffes, vibrisses, pavillons, truffe | Calcul / reconstruction | Enveloppe : volume des muscles et des os, fermé puis légèrement dilaté |
 | Thyroïde, parathyroïdes, surrénales, glandes salivaires, langue, diaphragme | Reconstruction | Ajustés sur le squelette, le foie et la cavité thoracique |
 | Vaisseaux et nerfs (hors abdomen) | Reconstruction | Ajustés sur les repères du squelette |
 
@@ -70,5 +72,5 @@ Une erreur de nomenclature, un trajet inexact ? Ouvrez un [ticket](https://githu
 
 1. Télécharger les trois modèles Sketchfab ci-dessus au format glTF/GLB et les placer dans `tools/sources/` sous les noms `feline_skeleton_dec.glb`, `feline_ecorche_dec.glb`, `normal_feline_anatomy_digestive_system.glb` et `domestic_cat_felis_catus.glb`.
 2. Installer les dépendances : `pip install trimesh numpy scipy scikit-image shapely rtree fast-simplification` et `npm i -g @gltf-transform/cli`.
-3. Dans `tools/` : `python split_bones.py`, `python refine_labels.py`, `python landmarks.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, `python recon_extra.py`, `python recon_more.py`, `python recon_female.py`, `python muscle_attach.py`, `python muscle_names.py`, puis pour le crâne : `python register_skull.py`, `python build_skull.py`, `python export_skull.py` (et `Q=hd`), `python update_landmarks.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
+3. Dans `tools/` : `python split_bones.py`, `python refine_labels.py`, `python landmarks.py`, puis `python recon_thorax.py`, `python recon_vn.py`, `python recon_net.py`, `python recon_tree.py`, `python recon_branch.py`, `python recon_extra.py`, `python recon_more.py`, `python recon_female.py`, `python recon_skin.py`, `python skin_section.py`, `python muscle_attach.py`, `python muscle_names.py`, puis pour le crâne : `python register_skull.py`, `python build_skull.py`, `python export_skull.py` (et `Q=hd`), `python update_landmarks.py`, puis `python build.py` (standard) et `Q=hd python build.py` (HD).
 4. Compresser : `gltf-transform meshopt cat_raw.glb ../models/atlas-standard.glb` et `gltf-transform meshopt cat_raw_hd.glb ../models/atlas-hd.glb`.

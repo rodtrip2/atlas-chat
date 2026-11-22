@@ -314,6 +314,12 @@ const RECON_NOTE=" Structure reconstruite de façon schématique et ajustée sur
 const A='#d23a40', VN='#3b66d6', NV='#f0d264', VT='Vaisseaux du tronc', VH='Vaisseaux de la tête et du cou', VM='Vaisseaux des membres', NC='Nerfs centraux et du tronc', NH='Nerfs de la tête', NM='Nerfs des membres', OT='Organes thoraciques';
 const LY='#45b85f', GL='Système lymphatique', TD='#ece7dc', LG='#d5dde6', GT='Tendons et ligaments';
 const REC = {
+  peau:['p','Peau (épiderme, derme et hypoderme)','Cutis et tela subcutanea',"Enveloppe du corps, calculée ici autour des muscles et du squelette du modèle. Chez le chat, elle est fine (environ 0,4 à 2 mm), très mobile sur les tissus profonds et doublée d'un muscle peaucier. Le pli de peau à la nuque sert à évaluer l'hydratation (pli cutané) et les injections sous-cutanées se font dans le tissu lâche de l'hypoderme. Voir le module « Coupe de peau » pour le détail des couches.",'#d6b496','Peau et annexes'],
+  coussinets:['p','Coussinets','Tori',"Coussinets digités (un par doigt), métacarpien ou métatarsien, et carpien au membre thoracique. Épiderme très épais et kératinisé, riche en glandes sudoripares mérocrines : c'est par là que le chat transpire, et qu'il laisse des traces humides quand il a peur. Positions schématiques sous les phalanges réelles.",'#5a3c3c','Peau et annexes'],
+  griffes:['p','Griffes','Unguiculi',"Étuis de kératine qui recouvrent la phalange distale et poussent en couches successives ; le chat se fait les griffes pour retirer les couches usées. Rétractiles au repos. Clinique : griffes incarnées dans le coussinet chez le chat âgé, à surveiller et couper.",'#efece2','Peau et annexes'],
+  vibrisses:['p','Vibrisses (moustaches)','Pili tactiles',"Poils tactiles épais, implantés dans des follicules entourés d'un sinus sanguin et très innervés (nerf infra-orbitaire pour les moustaches). Le chat en a sur la lèvre supérieure, au-dessus des yeux, sur les joues et à l'arrière des carpes. Il ne faut jamais les couper.",'#f7f7f2','Peau et annexes'],
+  pavillons:['p','Pavillons auriculaires','Auriculae',"Lames de cartilage élastique recouvertes de peau sur les deux faces, mobiles grâce à une vingtaine de muscles. Clinique : othématome, carcinome épidermoïde des pointes d'oreilles chez les chats blancs exposés au soleil. Forme schématique.",'#e8bfae','Peau et annexes'],
+  truffe:['p','Truffe','Planum nasale',"Peau glabre et épaisse du bout du nez, au relief propre à chaque chat. Clinique : site fréquent de carcinome épidermoïde chez les chats à truffe dépigmentée.",'#c97884','Peau et annexes'],
   ln_mandibulaire:['l','Nœuds lymphatiques mandibulaires','Lnn. mandibulares',"Sous l'angle de la mandibule, de part et d'autre ; palpables. Ils drainent la face et la cavité buccale. Leur augmentation de volume est fréquente lors d'affections dentaires ou de lymphome.",LY,GL],
   ln_retropharyngien:['l','Nœud lymphatique rétropharyngien médial','Ln. retropharyngeus medialis',"Profond, dorsal au pharynx : il collecte toute la lymphe de la tête avant le conduit trachéal. Non palpable normalement.",LY,GL],
   ln_parotidien:['l','Nœud lymphatique parotidien','Ln. parotideus',"Petit nœud sous la glande parotide, en avant de la base de l'oreille.",LY,GL],
@@ -461,8 +467,8 @@ const REC = {
 };
 function recInfo(id){ let r=REC[id], sd=null, base=id; if(!r){ const m=id.match(/^(.*?)_([dg])$/); base=m[1]; sd=m[2]; r=REC[base]; }
   let fr=r[1]; if(sd){ fr = /^(Veine |Artère )/.test(fr) && !fr.includes('(') ? fr+' '+SIDE[sd][1] : fr+' – côté '+SIDE[sd][0]; }
-  return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs',l:'Lymphatique',t:'Tendons et ligaments'}[r[0]],group:r[5],color:r[4]}; }
-const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b','Repères osseux':'#37c6c0',Lymphatique:'#45b85f','Tendons et ligaments':'#ece7dc'};
+  return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs',l:'Lymphatique',t:'Tendons et ligaments',p:'Peau'}[r[0]],group:r[5],color:r[4]}; }
+const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b','Repères osseux':'#37c6c0',Lymphatique:'#45b85f','Tendons et ligaments':'#ece7dc',Peau:'#d6b496'};
 
 // ---------- Scène ----------
 const canvas=document.getElementById('c');
@@ -483,6 +489,7 @@ const LAYERS={
   o:{label:'Organes',color:'#e3a37a',state:2,tri:.3,group:new THREE.Group()},
   v:{label:'Vaisseaux',color:'#e5484d',state:2,group:new THREE.Group()},
   n:{label:'Nerfs',color:'#f2d24b',state:2,group:new THREE.Group()},
+  p:{label:'Peau',color:'#d6b496',state:0,tri:.3,group:new THREE.Group()},
   l:{label:'Lymphatique',color:'#45b85f',state:2,group:new THREE.Group()},
   t:{label:'Tendons',color:'#ece7dc',state:2,group:new THREE.Group()},
   k:{label:'Repères',color:'#37c6c0',state:2,group:new THREE.Group()},
@@ -496,7 +503,7 @@ function layerApply(k){
   const L=LAYERS[k]; L.group.visible=L.state>0;
   if(L.tri) L.group.traverse(o=>{ if(o.isMesh){ const t=L.state===1; o.material.transparent=t||o.userData.tr; o.material.opacity=t?Math.min(L.tri,o.userData.op??1):(o.userData.op??1); o.material.depthWrite=!(t||o.userData.tr); o.material.needsUpdate=true; }});
   L.btn.classList.toggle('off',L.state===0);
-  L.btn.querySelector('.st').textContent = L.tri ? ['masqués','transparents','opaques'][L.state].replace(/s$/, k==='b'?'':'s') : '';
+  L.btn.querySelector('.st').textContent = L.tri ? (k==='p'?['masquée','transparente','opaque']:k==='b'?['masqué','transparent','opaque']:['masqués','transparents','opaques'])[L.state] : '';
 }
 
 const loader=new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
@@ -509,13 +516,15 @@ function loadModel(q){
   ld.textContent='Chargement du modèle ('+QUAL[q].label+')…';
   loader.load(QUAL[q].url, g=>{
     if(tok!==loadToken) return;
-    for(const o of meshes.filter(o=>LAYERS[o.userData.layer])){ o.parent&&o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); delete byId[o.userData.id]; }
-    { const keep=meshes.filter(o=>!LAYERS[o.userData.layer]); meshes.length=0; meshes.push(...keep); }
+    for(const o of meshes.filter(o=>LAYERS[o.userData.layer]||o.userData.layer==='z')){ o.parent&&o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); delete byId[o.userData.id]; }
+    { const keep=meshes.filter(o=>!LAYERS[o.userData.layer]&&o.userData.layer!=='z'); meshes.length=0; meshes.push(...keep); }
   const items=[];
   g.scene.traverse(o=>{ if(!o.isMesh) return; items.push(o); });
   for(const o of items){
     const cands=[o.userData.name,o.name,o.parent&&o.parent.userData.name,o.parent&&o.parent.name]; const nm=cands.find(n=>n&&n.includes(':'))||'';
-    const [layer,id]=nm.split(':'); if(!LAYERS[layer]) continue;
+    const [layer,id]=nm.split(':');
+    if(layer==='z'){ const inf=secAdd(o,id); if(!inf) continue; if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals(); o.userData.base=o.material.color.clone(); o.userData.op=o.material.opacity; o.userData.tr=o.material.transparent; o.userData.id='z:'+id; o.userData.layer='z'; infoById['z:'+id]=inf; (byId['z:'+id]??=[]).push(o); meshes.push(o); continue; }
+    if(!LAYERS[layer]) continue;
     let info;
     if(layer==='b'){ info=boneInfo(id); o.material=boneMat();
       const SKC={cr_frontal:0xf0dca0,cr_parietal:0xc9d6ee,cr_occipital:0xdcc8e8,cr_temporal:0xeec9b0,cr_zygomatique:0xbfe3df,cr_maxillaire:0xcfe6c0,cr_nasal:0xf0c8dc,cr_incisif:0xf2c0b8,cr_base:0xd8d2c4};
@@ -529,6 +538,7 @@ function loadModel(q){
       const L=info.sys; 
       if(L==='Vaisseaux') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.32,clearcoat:.7,clearcoatRoughness:.25});
       else if(L==='Nerfs' && id!=='encephale') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.55,sheen:.8,sheenColor:new THREE.Color('#fff4c8'),sheenRoughness:.5});
+      else if(L==='Peau') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:id==='peau'?.85:.5,sheen:id==='peau'?.6:0,sheenColor:new THREE.Color('#fff0e0'),side:THREE.DoubleSide});
       else if(L==='Lymphatique') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.4,clearcoat:.5,sheen:.3});
       else if(L==='Tendons et ligaments') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.35,sheen:1,sheenColor:new THREE.Color('#ffffff'),sheenRoughness:.3,clearcoat:.4});
       else if(id==='diaphragme') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.6,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide});
@@ -559,7 +569,7 @@ for(const k in LAYERS){ const L=LAYERS[k]; const b=document.createElement('butto
   b.onclick=()=>{ L.state = L.tri ? (L.state+2)%3 : (L.state?0:2); layerApply(k); if(selected && !LAYERS[selected.split(':')[0]].group.visible) select(null); };
   L.btn=b; chips.appendChild(b); }
 const pbtn=document.createElement('button'); pbtn.className='chip'; pbtn.textContent='✦ Réseaux';
-pbtn.onclick=()=>{ if(SKM.active) exitSkull(false); const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.l.state=2; L.t.state=0; L.k.state=0; for(const k in L) layerApply(k); };
+pbtn.onclick=()=>{ if(SKM.active) exitSkull(false); if(SEC.active) exitSection(false); const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.l.state=2; L.t.state=0; L.k.state=0; L.p.state=0; for(const k in L) layerApply(k); };
 chips.appendChild(pbtn);
 const qbtn=document.createElement('button'); qbtn.className='chip';
 function updateQBtn(){ qbtn.innerHTML='◐ '+QUAL[quality].label; }
@@ -573,7 +583,7 @@ document.getElementById('crx').onclick=()=>document.getElementById('credits').cl
 const listEl=document.getElementById('list'), lb=document.getElementById('lb'), q=document.getElementById('q');
 document.getElementById('lx').onclick=()=>listEl.classList.remove('open');
 const listBtns={};
-const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Tendons et ligaments','Muscles','Tête et cou','Glandes endocrines','Organes thoraciques','Organes abdominaux','Appareil urogénital','Système lymphatique','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
+const ORDER=['Peau et annexes','Coupe de peau','Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Tendons et ligaments','Muscles','Tête et cou','Glandes endocrines','Organes thoraciques','Organes abdominaux','Appareil urogénital','Système lymphatique','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
 function natKey(id){ return id.replace(/\d+/g,n=>n.padStart(3,'0')); }
 function buildList(){
   const groups={}; for(const id in infoById){ (groups[infoById[id].group]??=[]).push(id); }
@@ -598,6 +608,7 @@ function select(id,focus){
   if(selected&&listBtns[selected]) listBtns[selected].classList.remove('sel');
   selected=id; if(!id){ card.classList.remove('show'); return; }
   { const o0=byId[id]&&byId[id][0]; if(o0&&o0.userData.sex&&o0.userData.sex!==SEX){ SEX=o0.userData.sex; applySex(); } }
+  const isSec=/^z:/.test(id); if(isSec&&!SEC.active) enterSection(false); if(!isSec&&SEC.active) exitSection(false);
   const isSk=/^(x|y):/.test(id); if(isSk&&!SKM.active) enterSkull(false); if(!isSk&&SKM.active) exitSkull(false);
   const L=LAYERS[id.split(':')[0]]; if(L&&L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
   const box=new THREE.Box3(); byId[id].forEach(o=>{ o.material.color.setHex(0xffb340); o.material.emissive.setHex(0x3a2400); box.expandByObject(o); });
@@ -607,7 +618,7 @@ function select(id,focus){
     const off=camera.position.clone().sub(controls.target).setLength(Math.max(0.6,Math.min(5,sz*2.6))); flyTo(c,c.clone().add(off)); }
 }
 let fly=null; function flyTo(t,p){ fly={t0:performance.now(),ft:controls.target.clone(),fp:camera.position.clone(),tt:t,tp:p}; }
-function home(instant){ if(typeof SKM!=='undefined'&&SKM.active){ const t=new THREE.Vector3(0,0.62,1.70), p=t.clone().add(new THREE.Vector3(0.75,0.25,0.55).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.6:1.05)); if(instant){controls.target.copy(t);camera.position.copy(p);} else flyTo(t,p); return; } const asp=innerWidth/innerHeight, t=new THREE.Vector3(0,0,0);
+function home(instant){ if(typeof SEC!=='undefined'&&SEC.active){ const t=new THREE.Vector3(0,0.2,3.4), p=t.clone().add(new THREE.Vector3(0.6,0.45,0.7).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.5:0.95)); if(instant){controls.target.copy(t);camera.position.copy(p);} else flyTo(t,p); return; } if(typeof SKM!=='undefined'&&SKM.active){ const t=new THREE.Vector3(0,0.62,1.70), p=t.clone().add(new THREE.Vector3(0.75,0.25,0.55).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.6:1.05)); if(instant){controls.target.copy(t);camera.position.copy(p);} else flyTo(t,p); return; } const asp=innerWidth/innerHeight, t=new THREE.Vector3(0,0,0);
   const d=Math.max(4.6, 2.2/(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*asp));
   const p=t.clone().add(new THREE.Vector3(0.85,0.35,0.4).normalize().multiplyScalar(d));
   if(instant){ controls.target.copy(t); camera.position.copy(p); } else flyTo(t,p); }
@@ -632,7 +643,7 @@ canvas.addEventListener('pointercancel',e=>endPointer(e,true),{capture:true});
 function doPick(cx,cy){
   const r=canvas.getBoundingClientRect();
   ptr.set((cx-r.left)/r.width*2-1,-((cy-r.top)/r.height)*2+1); ray.setFromCamera(ptr,camera);
-  const vis = SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>o.visible&&LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
+  const vis = SEC.active ? meshes.filter(o=>o.userData.layer==='z') : SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>o.visible&&LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
   const stt=o=>LAYERS[o.userData.layer]?LAYERS[o.userData.layer].state:2;
   for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
   const hits=ray.intersectObjects(vis,false);
@@ -689,7 +700,7 @@ function addListGroup(gname,ids){
 }
 function skullClear(){ for(const grp of [SKM.group]){ const rm=[]; grp.traverse(o=>{ if(o.isMesh) rm.push(o); }); for(const o of rm){ o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); const i=meshes.indexOf(o); if(i>=0) meshes.splice(i,1); delete byId[o.userData.id]; } } SKM.loaded=false; }
 function enterSkull(fly=true){
-  if(SKM.active) return;
+  if(SKM.active) return; if(typeof SEC!=='undefined'&&SEC.active) exitSection(false);
   if(!SKM.loaded){ if(SKM.loading) return; SKM.loading=true; let ld=document.getElementById('load'); if(!ld){ ld=document.createElement('div'); ld.id='load'; document.body.appendChild(ld); } ld.textContent='Chargement du crâne détaillé…';
     skullLoad(g=>{ SKM.loading=false; skullProcess(g); document.getElementById('load')?.remove(); enterSkull(fly); }, e=>{ SKM.loading=false; const l=document.getElementById('load'); if(l) l.textContent='Impossible de charger le crâne détaillé.'; console.error(e); });
     return; }
@@ -703,7 +714,7 @@ function exitSkull(fly=true){
   for(const k in LAYERS) LAYERS[k].group.visible=LAYERS[k].state>0; setSkullChips(false); if(fly) home();
 }
 const skChips=[];
-function setSkullChips(on){ for(const b of chips.children){ b.style.display = (b.dataset.sk==='1') ? (on?'':'none') : (b.dataset.both==='1' ? '' : (on?'none':'')); } }
+function setSkullChips(on){ for(const b of chips.children){ b.style.display = (b.dataset.sec==='1') ? 'none' : (b.dataset.sk==='1') ? (on?'':'none') : (b.dataset.both==='1' ? '' : (on?'none':'')); } }
 function mkChip(label,fn,sk,both){ const b=document.createElement('button'); b.className='chip'; b.innerHTML=label; b.onclick=fn; if(sk) b.dataset.sk='1'; if(both) b.dataset.both='1'; chips.appendChild(b); return b; }
 const skBtn=mkChip('◎ Crâne détaillé',()=>enterSkull(true));
 const skBack=mkChip('← Atlas complet',()=>exitSkull(true),true); skBack.style.display='none';
@@ -714,7 +725,53 @@ for(const b of chips.children){ if(/Liste|Vue|◐/.test(b.textContent)) b.datase
 let SEX='m';
 function applySex(){ for(const o of meshes){ if(o.userData.sex) o.visible=(o.userData.sex===SEX); } if(typeof sexBtn!=='undefined') sexBtn.innerHTML = SEX==='m'?'♂ Mâle':'♀ Femelle'; }
 const sexBtn=mkChip('♂ Mâle',()=>{ SEX = SEX==='m'?'f':'m'; if(selected){ const o=byId[selected]&&byId[selected][0]; if(o&&o.userData.sex&&o.userData.sex!==SEX) select(null); } applySex(); });
-window.__dbg={applySex,SKM,enterSkull,exitSkull,layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
+// ---------- Module « Coupe de peau » ----------
+const SECI={
+  sk_cornee:['Couche cornée','Stratum corneum',"Couche superficielle de l'épiderme, faite de cellules mortes aplaties remplies de kératine, qui desquament en permanence. Barrière contre la déshydratation et les microbes.",'#efe1c8',1],
+  sk_epi_vivant:['Couches épineuse et granuleuse','Stratum spinosum et granulosum',"Cellules (kératinocytes) qui se kératinisent en montant vers la surface. L'épiderme du chat est très fin, quelques cellules d'épaisseur seulement, sauf sur les coussinets et la truffe.",'#e8cfae',1],
+  sk_basale:['Couche basale','Stratum basale',"Couche profonde de l'épiderme où les cellules se divisent ; on y trouve les mélanocytes, qui colorent la peau et le poil.",'#b98a62',1],
+  sk_derme_pap:['Derme papillaire','Stratum papillare',"Partie superficielle du derme, faite de tissu conjonctif lâche, qui nourrit l'épiderme par ses capillaires.",'#e9a9a8',0.55],
+  sk_derme_ret:['Derme réticulaire','Stratum reticulare',"Partie profonde et dense du derme, riche en fibres de collagène et élastiques : elle donne à la peau sa résistance. Elle contient les follicules pileux et les glandes.",'#d98f93',0.42],
+  sk_hypoderme:['Hypoderme (tissu sous-cutané)','Tela subcutanea',"Tissu conjonctif lâche et graisseux qui relie la peau aux muscles et la rend très mobile chez le chat. C'est le site des injections sous-cutanées. Clinique : sarcome au site d'injection, rare mais grave.",'#f2dc8f',0.35],
+  sk_lobules:['Lobules adipeux','Lobuli adiposi',"Amas de cellules graisseuses de l'hypoderme : réserve d'énergie et isolation thermique.",'#f3d36b',1],
+  sk_peaucier:['Muscle peaucier du tronc','M. cutaneus trunci',"Fine couche musculaire sous la peau qui permet au chat de faire frissonner sa peau ; elle explique les ondulations du dos lors du syndrome d'hyperesthésie féline.",'#b8464e',1],
+  sk_foll_primaire:['Follicule pileux primaire','Folliculus pili primarius',"Chez le chat, les poils sortent par groupes (follicules composés) : un follicule primaire, plus gros et plus profond, entouré de follicules secondaires, tous débouchant par le même orifice.",'#d8b48a',1],
+  sk_bulbe:['Bulbe pileux','Bulbus pili',"Renflement profond du follicule où se divisent les cellules qui fabriquent le poil, autour d'une papille vascularisée.",'#c99a66',1],
+  sk_poil_jarre:['Poil de jarre (poil primaire)','Pilus primarius',"Poil long et raide, qui forme le pelage de couverture et donne sa couleur au chat.",'#5b4636',1],
+  sk_foll_secondaire:['Follicules pileux secondaires','Folliculi pili secundarii',"Follicules plus fins et moins profonds, groupés autour du follicule primaire.",'#e2c39c',1],
+  sk_poil_bourre:['Poils de bourre (poils secondaires)','Pili secundarii',"Poils fins et ondulés du sous-poil, qui assurent l'isolation thermique ; ils tombent en masse lors des mues.",'#8a7464',1],
+  sk_sebacee:['Glandes sébacées','Glandulae sebaceae',"Glandes en grappe qui déversent le sébum dans le follicule et lubrifient poil et peau. Clinique : très développées au menton et à la base de la queue (acné du menton, « queue grasse » du mâle entier).",'#f0d9a0',1],
+  sk_arrecteur:['Muscle arrecteur du poil','M. arrector pili',"Petit muscle lisse qui redresse le poil sous l'effet de l'adrénaline : c'est le poil hérissé du chat effrayé ou en colère.",'#c4525a',1],
+  sk_sudoripare:['Glande sudoripare apocrine (épitrichiale)','Glandula sudorifera apocrina',"Glande enroulée profonde qui s'ouvre dans le follicule ; sa sécrétion sert surtout aux odeurs et au marquage. Le chat ne transpire vraiment que par les coussinets (glandes mérocrines).",'#9fc6dd',1],
+  sk_arterioles:['Artérioles des plexus cutanés','Plexus arteriosi cutanei',"Deux réseaux, profond (entre derme et hypoderme) et superficiel (sous l'épiderme), reliés par des vaisseaux verticaux.",'#d23a40',1],
+  sk_veinules:['Veinules','Venulae',"Elles ramènent le sang des plexus cutanés.",'#3b66d6',1],
+  sk_capillaires:['Anses capillaires','Ansae capillares',"Boucles de capillaires dans les papilles dermiques, qui nourrissent l'épiderme (lequel n'a pas de vaisseaux).",'#e0565c',1],
+  sk_nerfs:['Nerfs cutanés','Nervi cutanei',"Fibres sensitives du toucher, de la douleur et de la température, avec des terminaisons autour des follicules.",'#f0d264',1],
+  sk_tylotriche:['Coussinet tylotriche','Torulus tactilis',"Petit dôme d'épiderme épaissi au pied d'un poil tactile, très riche en terminaisons nerveuses (cellules de Merkel) : récepteur du toucher fin, propre aux carnivores.",'#f1c9a8',1],
+};
+const SECN=" Coupe schématique, épaisseurs très exagérées pour la lisibilité (l'épiderme du chat ne mesure que quelques centièmes de millimètre).";
+const SEC={group:new THREE.Group(),active:false}; SEC.group.visible=false; scene.add(SEC.group);
+function secAdd(o,id){
+  const r=SECI[id]; if(!r) return null;
+  o.material=new THREE.MeshPhysicalMaterial({color:r[3],roughness:.5,clearcoat:.2,transparent:r[4]<1,opacity:r[4],depthWrite:r[4]>=1,side:r[4]<1?THREE.DoubleSide:THREE.FrontSide});
+  SEC.group.add(o);
+  return {fr:r[0],la:r[1],d:r[2]+SECN,sys:'Peau',group:'Coupe de peau'};
+}
+function enterSection(fly=true){
+  if(SEC.active) return; if(SKM.active) exitSkull(false);
+  SEC.active=true; for(const k in LAYERS) LAYERS[k].group.visible=false; floor.visible=false; SEC.group.visible=true; setSecChips(true);
+  if(fly){ const t=new THREE.Vector3(0,0.2,3.4); flyTo(t,t.clone().add(new THREE.Vector3(0.6,0.45,0.7).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.5:0.95))); }
+}
+function exitSection(fly=true){
+  if(!SEC.active) return; SEC.active=false; SEC.group.visible=false; floor.visible=true;
+  if(selected && /^z:/.test(selected)) select(null);
+  for(const k in LAYERS) LAYERS[k].group.visible=LAYERS[k].state>0; setSecChips(false); if(fly) home();
+}
+function setSecChips(on){ for(const b of chips.children){ b.style.display = (b.dataset.sec==='1') ? (on?'':'none') : (b.dataset.sk==='1') ? 'none' : (b.dataset.both==='1' ? '' : (on?'none':'')); } }
+const secBtn=mkChip('▦ Coupe de peau',()=>enterSection(true));
+const secBack=mkChip('← Atlas complet',()=>exitSection(true)); secBack.dataset.sec='1'; secBack.style.display='none';
+
+window.__dbg={enterSection,exitSection,applySex,SKM,enterSkull,exitSkull,layerApply,LAYERS,select,camera,controls,flyTo,infoById,screenOf:(id)=>{ const b=new THREE.Box3(); byId[id].forEach(o=>b.expandByObject(o)); const c=b.getCenter(new THREE.Vector3()).project(camera); return [(c.x+1)/2*innerWidth,(1-c.y)/2*innerHeight]; }};
 </script>
 </body>
 </html>
