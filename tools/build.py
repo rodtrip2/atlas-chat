@@ -86,7 +86,7 @@ SK=trimesh.load('cat_raw.glb').geometry['p:peau'] if HD else scene.geometry['p:p
 MARG=0.006 if HD else 0.004; moved=[]
 for gn,g in scene.geometry.items():
     L=gn.split(':')[0]
-    if L not in 'vnlot' or gn.startswith('o:mamelles'): continue
+    if L not in 'vnlot' or gn.startswith('o:mamelles') or 'globe' in gn or 'cornee' in gn: continue
     v=np.asarray(g.vertices).copy(); tot=0
     for _ in range(4):
         d,i=ST.query(v); sd=((v-sp[i])*sn[i]).sum(1)

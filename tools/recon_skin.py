@@ -18,7 +18,7 @@ B2={k:trimesh.util.concatenate(v) for k,v in G2.items()}
 ec=trimesh.load('sources/feline_ecorche_dec.glb').to_geometry()
 P=[ec.sample(1500000)]+[p.sample(max(200,len(p.faces))) for p in parts]
 # structures molles reconstruites : la peau doit les englober
-EXC=('vibrisse','pavillon','truffe','coussinet','griffe','mamelle','peau')
+EXC=('vibrisse','pavillon','truffe','coussinet','griffe','mamelle','peau','globe','cornee')
 for f in ['net_branch.pkl','net_extra.pkl','net_more.pkl','net_trunk.pkl','net_tree.pkl','net_female.pkl']:
     d,_=pickle.load(open(f,'rb'))
     for k,ms in d.items():
@@ -37,6 +37,15 @@ G=ndi.binary_fill_holes(G)
 for k in range(G.shape[2]): G[:,:,k]=ndi.binary_fill_holes(G[:,:,k])   # cavités ouvertes : pas de coque interne
 for k in range(G.shape[0]): G[k]=ndi.binary_fill_holes(G[k])
 G=ndi.binary_dilation(G,iterations=1)      # subcutis + skin thickness
+# fentes palpébrales : la peau s'ouvre devant chaque globe oculaire
+ii,jj,kk=np.indices(G.shape); XYZ=None
+for s_ in (1,-1):
+    c=np.array([s_*0.13,0.695,1.795]); r=0.056; gz=np.array([s_*0.5,0,1.0]); gz/=np.linalg.norm(gz)
+    lo_i=np.floor((c-r-0.03-lo)/h).astype(int); hi_i=np.ceil((c+r+0.03-lo)/h).astype(int)
+    sl=tuple(slice(a,b) for a,b in zip(lo_i,hi_i))
+    P_=np.stack([ii[sl],jj[sl],kk[sl]],-1)*h+lo-c
+    dist=np.linalg.norm(P_,axis=-1); front=(P_@gz)>0.25*r
+    G[sl]&=~((dist<r+0.012)&front)
 np.savez_compressed('skin_grid.npz',G=G,lo=lo,h=h)
 skin=voxmesh(G,lo,h,smooth=15,sigma=1.4)
 skin=max(skin.split(only_watertight=False),key=lambda c:len(c.faces))   # surface externe seule
@@ -86,6 +95,6 @@ def pinna(s):
     m=trimesh.Trimesh(np.array(V),np.array(F)); m2=m.copy(); m2.vertices=m2.vertices-m.vertex_normals*0.004; m2.invert()
     return trimesh.util.concatenate([m,m2])
 add('pavillons','p',trimesh.util.concatenate([pinna(1),pinna(-1)]))
-add('truffe','p',trimesh.util.concatenate([ell([0,0.555,2.0],[0.03,0.022,0.016]),ell([0.011,0.548,2.013],[0.006,0.005,0.004],sub=1),ell([-0.011,0.548,2.013],[0.006,0.005,0.004],sub=1)]))
+add('truffe','p',trimesh.util.concatenate([ell([0,0.50,1.962],[0.028,0.021,0.012]),ell([0.011,0.493,1.972],[0.006,0.005,0.004],sub=1),ell([-0.011,0.493,1.972],[0.006,0.005,0.004],sub=1)]))
 pickle.dump((dict(OUT),LAY),open('net_skin.pkl','wb'))
 for k,v in OUT.items(): print(k,sum(len(m.faces) for m in v))

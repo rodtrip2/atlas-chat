@@ -58,7 +58,7 @@ for s,S in [(1,'_g'),(-1,'_d')]:
     lv.append(tube([sv([0.16,0.45,1.18]),sv([0.10,0.43,1.10]),venous(s)],0.0024))
     lv.append(tube([sv([0.12,0.30,0.98]),sv([0.08,0.38,1.04]),venous(s)],0.0024))
     mc=B['metacarpe'+S].centroid if 'metacarpe'+S in B else B['mcIII'+S].centroid
-    lv.append(tube([mc+np.array([0,0.04,0.03]),P_(F['rp'],F['rd'],0.5,F['rc']*0.04),P_(F['hp'],F['hd'],0.92,F['MED']*0.03+F['hc']*0.02),P_(F['hp'],F['hd'],0.5,F['MED']*0.05),sv([0.12,0.30,0.98])],0.0018))
+    lv.append(tube([mc+np.array([0,0.012,0.01]),P_(F['rp'],F['rd'],0.5,F['rc']*0.015),P_(F['hp'],F['hd'],0.92,F['MED']*0.03+F['hc']*0.02),P_(F['hp'],F['hd'],0.5,F['MED']*0.05),sv([0.12,0.30,0.98])],0.0018))
     mt=B2['mtIII'+S].centroid
     lv.append(tube([mt+np.array([0,0.02,-0.02]),P_(F['tp'],F['td'],0.6,F['tk']*0.045),pop],0.0018))
     lv.append(tube([pop,P_(F['fp'],F['fd'],0.6,F['MED']*0.025),sv([0.11,0.36,-0.88]),sv([0.06,0.48,-0.70]),sv([0.03,0.55,-0.56])],0.0022))
