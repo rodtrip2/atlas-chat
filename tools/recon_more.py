@@ -41,7 +41,7 @@ venous=lambda s: np.array([s*0.05,0.42,1.06])
 for s,S in [(1,'_g'),(-1,'_d')]:
     F=frames(S,s); sv=lambda p: np.array([p[0]*s,p[1],p[2]])
     nodes={'ln_mandibulaire':[ell(sv([0.11,0.46,1.66]),[0.011,0.008,0.015]),ell(sv([0.10,0.44,1.69]),[0.009,0.007,0.012])],
-           'ln_retropharyngien':[ell(sv([0.04,0.57,1.50]),[0.008,0.012,0.022])],
+           'ln_retropharyngien':[ell(sv([0.05,0.58,1.52]),[0.012,0.033,0.052])],   # ~21 x 13 x 5 mm chez le chat (Am J Vet Res 2012;73:1377)
            'ln_parotidien':[ell(sv([0.125,0.60,1.565]),[0.006,0.006,0.010])],
            'ln_cervical_sup':[ell(sv([0.16,0.45,1.18]),[0.010,0.012,0.020])],
            'ln_axillaire':[ell(sv([0.12,0.30,0.98]),[0.010,0.008,0.014])],
@@ -143,7 +143,9 @@ add('parathyroides','o',trimesh.util.concatenate([ell([s*0.037,0.505,1.40],[0.00
 add('surrenales','o',trimesh.util.concatenate([ell([0.05,0.53,0.07],[0.006,0.006,0.012]),ell([-0.055,0.52,0.13],[0.006,0.006,0.012])]))
 for s,S in [(1,'_g'),(-1,'_d')]:
     add('gl_mandibulaire'+S,'o',ell([s*0.10,0.505,1.59],[0.016,0.016,0.022]))
-    add('gl_parotide'+S,'o',ell([s*0.132,0.58,1.585],[0.010,0.03,0.02]))
+    add('gl_parotide'+S,'o',ell([s*0.138,0.595,1.585],[0.010,0.04,0.021]))     # contre la base du conduit auditif externe
+    add('gl_zygomatique'+S,'o',ell([s*0.13,0.612,1.772],[0.018,0.011,0.024]))  # ventrale au globe, médiale à l'arcade zygomatique
+    add('gl_sublinguale'+S,'o',ell([s*0.088,0.48,1.622],[0.008,0.008,0.016]))  # monostomatique, au pôle rostral de la mandibulaire
 tg=[[0,0.47,1.58],[0,0.41,1.66],[0,0.35,1.76],[0,0.32,1.86],[0,0.31,1.90]]
 t_=tube(tg,0.026,0.012,seg=16); t_=flatten(t_,spline(tg,0.005),1,0.5); add('langue','o',t_)
 # diaphragm sheet from the computed diaphragm surface

@@ -13,6 +13,8 @@ Atlas anatomique 3D interactif et gratuit du chat domestique (*Felis catus*), co
 - Os détaillés : petits os du carpe et du tarse, métacarpiens et métatarsiens I à V, phalanges doigt par doigt, 28 dents (numérotation de Triadan), sternèbres, os du crâne (délimitation approximative, le crâne du modèle étant d'un seul bloc).
 - 90 repères osseux cliquables, calculés sur la géométrie réelle des os (tête du fémur, trochanters, condyles, épine scapulaire, olécrâne, foramen magnum, processus coronoïde…).
 - Le bouton « ✦ Réseaux » affiche les vaisseaux et les nerfs à travers le squelette et les organes rendus transparents.
+- Bouton **« ⊙ Isoler »** : n'afficher qu'une ou plusieurs régions (tête, cou, tronc, bassin et queue, membres thoraciques, membres pelviens) et/ou un ou plusieurs systèmes (squelette, muscles, cardiovasculaire, respiratoire, digestif, endocrinien, urinaire, génital, nerveux, lymphatique, peau, tous les organes). Les structures longues (peau, muscles, vaisseaux, nerfs) sont découpées au sommet près, d'après l'os le plus proche.
+- Fiches complétées par des références bibliographiques (PubMed) pour les nœuds lymphatiques de la tête, les glandes salivaires, les carotides et le plexus brachial.
 - Recherche par nom (par exemple « T5 », « fémur », « saphène »).
 - Module **« ◎ Crâne détaillé »** : scanner haute résolution d'un crâne de chat (Université d'Édimbourg), recalé sur l'atlas, avec os, mandibule et dents identifiés et 26 repères.
 - Module **« ▦ Coupe de peau »** : bloc schématique de l'épiderme (couches), du derme, de l'hypoderme et des annexes (follicules pileux composés, glandes sébacées et sudoripares, muscles arrecteurs, plexus vasculaires, nerfs, coussinet tylotriche).

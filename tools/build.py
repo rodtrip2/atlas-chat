@@ -99,4 +99,29 @@ for gn,g in scene.geometry.items():
         v[sel]=sp[i[sel]]-sn[i[sel]]*MARG; tot+=len(sel)
     if tot: g.vertices=v; moved.append((gn,tot))
 print('pushed inside skin:',moved)
+# ---- régions anatomiques par sommet (attribut _region) pour l'isolement dans le visualiseur
+import re as _re
+def _breg(i):
+    i=_re.sub(r'_[dg]$','',i)
+    if _re.match(r'(cr_|mandibule|dent_|hyoide)',i): return 0
+    if _re.fullmatch(r'C[1-7]',i): return 1
+    if _re.match(r'(T\d|L\d|cote|cart|manubrium|sternebre|xiphoide)',i): return 2
+    if _re.match(r'(sacrum|coxal|Cd\d)',i): return 3
+    if _re.match(r'(scapula|humerus|radius|ulna|carpe|mc[IV]|phal\d_m)',i): return 4
+    if _re.match(r'(femur|patella|tibia|fibula|talus|calcaneus|tarse|mt[IV]|phal\d_p)',i): return 5
+    return 2
+BP=[];BR=[]
+for gn,g in scene.geometry.items():
+    if gn.startswith('b:'):
+        v=np.asarray(g.vertices); st=max(1,len(v)//3000); BP.append(v[::st]); BR.append(np.full(len(v[::st]),_breg(gn.split(':')[1])))
+BP=np.vstack(BP); BR=np.concatenate(BR); BT=cKDTree(BP)
+WHOLE=('o','l','k')
+for gn,g in scene.geometry.items():
+    L=gn.split(':')[0]
+    if L in 'xyz': continue
+    v=np.asarray(g.vertices); r=BR[BT.query(v)[1]].astype(np.float32)
+    if L=='b': r[:]=_breg(gn.split(':')[1])
+    elif (L in ('o','k') and not _re.sub(r'_[dg]$','',gn.split(':')[1]) in ('trachee','oesophage','uretre','uretre_f','penis','rectum','vagin','mamelles')) or (L=='l' and gn.split(':')[1].startswith(('ln_','thymus','tonsilles','citerne'))):
+        r[:]=np.bincount(r.astype(int),minlength=6).argmax()
+    g.vertex_attributes['_region']=r
 scene.export('cat_raw_hd.glb' if HD else 'cat_raw.glb')

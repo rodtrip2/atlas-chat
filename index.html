@@ -20,6 +20,13 @@
   .chip .dot{width:10px;height:10px;border-radius:50%}
   .chip.off{opacity:.45}.chip.off .dot{background:transparent!important;border:1.5px solid var(--mut)}
   .chip .st{font-size:11px;color:var(--mut)}
+  #iso{display:none;margin-bottom:8px;background:rgba(24,27,33,.96);border:1px solid var(--line);border-radius:14px;padding:8px 10px;max-height:46vh;overflow:auto}
+  #iso.show{display:block}
+  #iso h3{font-size:11.5px;font-weight:600;color:var(--mut);margin:4px 2px 6px;text-transform:uppercase;letter-spacing:.04em}
+  #iso .row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}
+  #iso .chip{padding:6px 10px;font-size:13px}
+  #iso .chip.on{background:#3a2c12;border-color:#ffb340;color:#ffd58a}
+  .chip.act{border-color:#ffb340;color:#ffd58a}
   #hint{font-size:11.5px;color:var(--mut);margin:6px 2px 0}
   #card{position:fixed;left:10px;right:10px;bottom:96px;max-width:460px;margin:0 auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:none;backdrop-filter:blur(6px)}
   #card.show{display:block}
@@ -80,10 +87,12 @@
     <li>« <a href="https://sketchfab.com/3d-models/domestic-cat-felis-catus-7c99ca836d834c39872ecf5e9b5e2087">Domestic Cat (Felis catus)</a> », par <a href="https://sketchfab.com/openededinburgh">The University of Edinburgh Open.Ed</a> (scanner de Tobias Schwarz, Royal (Dick) School of Veterinary Studies) : module « Crâne détaillé », et contrôle de la cavité crânienne et des repères du crâne</li>
   </ul>
   <p>Signaler une erreur ou proposer une correction : <a href="https://github.com/rodtrip2/atlas-chat/issues">tickets GitHub</a>.</p>
+  <p><b>Références bibliographiques</b> (via PubMed) utilisées pour vérifier les structures reconstruites : nœuds lymphatiques de la tête et du cou (<a href="https://doi.org/10.1111/joa.13429">J Anat 2021</a> ; <a href="https://doi.org/10.2460/ajvr.73.9.1377">Am J Vet Res 2012</a>) ; glandes salivaires en scanner et IRM (<a href="https://doi.org/10.15654/TPK-150097">Tierarztl Prax 2015</a> ; <a href="https://doi.org/10.15654/TPK-151105">2016</a>) ; tronc bicarotidien (<a href="https://doi.org/10.1111/ahe.12202">Anat Histol Embryol 2016</a>) ; plexus brachial (<a href="https://doi.org/10.1111/ahe.12523">Anat Histol Embryol 2020</a> ; <a href="https://doi.org/10.1371/journal.pone.0289660">PLoS One 2023</a>).</p>
   <p>Licence des modèles : <a href="https://creativecommons.org/licenses/by/4.0/deed.fr">Creative Commons Attribution 4.0</a>. Modifications : géométrie simplifiée, structures séparées et nommées, organes abdominaux redimensionnés et repositionnés, peau du modèle digestif retirée, crâne scanné recalé sur l'atlas et découpé en os, structures thoraciques, vaisseaux et nerfs ajoutés par reconstruction.</p>
 </div></div>
 
 <div id="bottom">
+  <div id="iso"></div>
   <div id="chips"></div>
   <div id="hint">Glisser pour tourner · pincer pour zoomer · toucher une structure pour l'identifier</div>
 </div>
@@ -320,8 +329,8 @@ const REC = {
   vibrisses:['p','Vibrisses (moustaches)','Pili tactiles',"Poils tactiles épais, implantés dans des follicules entourés d'un sinus sanguin et très innervés (nerf infra-orbitaire pour les moustaches). Le chat en a sur la lèvre supérieure, au-dessus des yeux, sur les joues et à l'arrière des carpes. Il ne faut jamais les couper.",'#f7f7f2','Peau et annexes'],
   pavillons:['p','Pavillons auriculaires','Auriculae',"Lames de cartilage élastique recouvertes de peau sur les deux faces, mobiles grâce à une vingtaine de muscles. Clinique : othématome, carcinome épidermoïde des pointes d'oreilles chez les chats blancs exposés au soleil. Forme schématique.",'#e8bfae','Peau et annexes'],
   truffe:['p','Truffe','Planum nasale',"Peau glabre et épaisse du bout du nez, au relief propre à chaque chat. Clinique : site fréquent de carcinome épidermoïde chez les chats à truffe dépigmentée.",'#c97884','Peau et annexes'],
-  ln_mandibulaire:['l','Nœuds lymphatiques mandibulaires','Lnn. mandibulares',"Sous l'angle de la mandibule, de part et d'autre ; palpables. Ils drainent la face et la cavité buccale. Leur augmentation de volume est fréquente lors d'affections dentaires ou de lymphome.",LY,GL],
-  ln_retropharyngien:['l','Nœud lymphatique rétropharyngien médial','Ln. retropharyngeus medialis',"Profond, dorsal au pharynx : il collecte toute la lymphe de la tête avant le conduit trachéal. Non palpable normalement.",LY,GL],
+  ln_mandibulaire:['l','Nœuds lymphatiques mandibulaires','Lnn. mandibulares',"Sous l'angle de la mandibule, de part et d'autre ; palpables. Ils drainent la face et la cavité buccale. Leur augmentation de volume est fréquente lors d'affections dentaires ou de lymphome. Ils sont retrouvés chez 100 % des chats, à la dissection comme en imagerie. Réf. : J Anat 2021, doi:10.1111/joa.13429.",LY,GL],
+  ln_retropharyngien:['l','Nœud lymphatique rétropharyngien médial','Ln. retropharyngeus medialis',"Profond, dorsal au pharynx : il collecte toute la lymphe de la tête avant le conduit trachéal. Non palpable normalement. Chez le chat sain, il mesure environ 21 × 13 × 5 mm et diminue de volume avec l'âge ; il est visible à 100 % en échographie et au scanner. Réf. : Am J Vet Res 2012, doi:10.2460/ajvr.73.9.1377 ; J Anat 2021, doi:10.1111/joa.13429.",LY,GL],
   ln_parotidien:['l','Nœud lymphatique parotidien','Ln. parotideus',"Petit nœud sous la glande parotide, en avant de la base de l'oreille.",LY,GL],
   ln_cervical_sup:['l','Nœud lymphatique cervical superficiel (préscapulaire)','Lnn. cervicales superficiales',"Crânial à l'épaule, sous les muscles ; palpable. Il draine la tête, le cou et le membre thoracique.",LY,GL],
   ln_axillaire:['l','Nœud lymphatique axillaire','Ln. axillaris proprius',"Dans l'aisselle, médial à l'épaule ; difficile à palper chez le chat sain. Il draine le membre thoracique et les mamelles crâniales.",LY,GL],
@@ -359,8 +368,10 @@ const REC = {
   thyroide:['o','Glande thyroïde','Glandula thyroidea',"Deux lobes séparés, de part et d'autre de la trachée, sous le larynx (pas d'isthme chez le chat). Clinique : l'hyperthyroïdie est la maladie endocrinienne la plus fréquente du chat âgé ; on palpe alors un nodule qui glisse le long de la trachée.",'#b5523b','Glandes endocrines'],
   parathyroides:['o','Glandes parathyroïdes','Glandulae parathyroideae',"Minuscules glandes accolées à la thyroïde, qui règlent le calcium sanguin ; à préserver lors d'une thyroïdectomie (risque d'hypocalcémie).",'#d9905a','Glandes endocrines'],
   surrenales:['o','Glandes surrénales','Glandulae adrenales',"Petites glandes près du pôle crânial de chaque rein (cortisol, aldostérone, adrénaline). Clinique : l'hyperaldostéronisme primaire (syndrome de Conn) cause hypertension et hypokaliémie chez le chat âgé.",'#d9a54a','Glandes endocrines'],
-  gl_mandibulaire:['o','Glande salivaire mandibulaire','Glandula mandibularis',"Glande ovale à l'angle de la mandibule, entre les veines maxillaire et linguofaciale ; palpable, à ne pas confondre avec le nœud lymphatique mandibulaire.",'#e2b48c','Tête et cou'],
-  gl_parotide:['o','Glande salivaire parotide','Glandula parotis',"Sous la base de l'oreille ; son canal s'ouvre dans la bouche en regard de la carnassière supérieure.",'#e2b48c','Tête et cou'],
+  gl_mandibulaire:['o','Glande salivaire mandibulaire','Glandula mandibularis',"Glande ovale à l'angle de la mandibule, entre les veines maxillaire et linguofaciale ; palpable, à ne pas confondre avec le nœud lymphatique mandibulaire. Au scanner, elle mesure environ 62 UH, sans différence entre les côtés. Réf. : Tierarztl Prax 2015, doi:10.15654/TPK-150097.",'#e2b48c','Tête et cou'],
+  gl_parotide:['o','Glande salivaire parotide','Glandula parotis',"Sous la base de l'oreille, contre le conduit auditif externe et le bord caudal du muscle masséter, qui servent de repères en imagerie ; son canal s'ouvre dans la bouche en regard de la carnassière supérieure. Réf. : Tierarztl Prax 2015, doi:10.15654/TPK-150097 ; 2016, doi:10.15654/TPK-151105.",'#e2b48c','Tête et cou'],
+  gl_zygomatique:['o','Glande salivaire zygomatique','Glandula zygomatica',"Propre aux carnivores : sous le globe oculaire, médiale à l'arcade zygomatique, dans le plancher de l'orbite. Ses canaux s'ouvrent près de la dernière molaire supérieure. Clinique : sa mucocèle ou son inflammation repousse l'œil (exophtalmie). Repérable au scanner chez environ 97 % des chats. Réf. : Tierarztl Prax 2015, doi:10.15654/TPK-150097.",'#e2b48c','Tête et cou'],
+  gl_sublinguale:['o','Glande salivaire sublinguale','Glandula sublingualis monostomatica',"Petite glande accolée au pôle rostral de la glande mandibulaire ; son canal longe celui de la mandibulaire jusqu'à la caroncule sublinguale, sous la langue. Volume reconstruit de façon schématique.",'#e2b48c','Tête et cou'],
   langue:['o','Langue','Lingua',"Couverte de papilles cornées dirigées vers l'arrière, qui servent à la toilette et à racler la viande. Clinique : un fil peut s'enrouler à sa base (corps étranger linéaire), à rechercher en soulevant la langue.",'#d98a95','Tête et cou'],
   diaphragme:['o','Diaphragme','Diaphragma',"Muscle en coupole entre thorax et abdomen, principal muscle de l'inspiration, innervé par les nerfs phréniques. Sa surface suit ici la face crâniale du foie et la cavité thoracique réelle. Clinique : rupture traumatique (accident, chute) avec passage des viscères dans le thorax.",'#b9545b',OT],
 
@@ -418,7 +429,7 @@ const REC = {
   v_epigastrique:['v','Veines épigastriques crâniale et caudale','Vv. epigastricae cranialis et caudalis',"Satellites des artères épigastriques, dans la paroi abdominale ventrale.",VN,VT],
   v_thor_int:['v','Veine thoracique interne','V. thoracica interna',"Satellite de l'artère, le long de la face interne du sternum.",VN,VT],
   art_lomb:['v','Artères lombaires','Aa. lumbales',"Branches segmentaires de l'aorte abdominale, vers les muscles du dos.",A,VT],
-  carotide:['v','Artère carotide commune','A. carotis communis',"Elle remonte le long de la trachée. Chez le chat adulte, l'artère carotide interne s'oblitère : l'encéphale est irrigué surtout par l'artère maxillaire.",A,VH],
+  carotide:['v','Artère carotide commune','A. carotis communis',"Elle remonte le long de la trachée. Chez le chat adulte, l'artère carotide interne s'oblitère : l'encéphale est irrigué surtout par l'artère maxillaire. Variation fréquente : environ un chat sur quatre a un tronc bicarotidien, court tronc commun (environ 5,6 mm) d'où naissent les deux carotides. Réf. : Anat Histol Embryol 2016, doi:10.1111/ahe.12202.",A,VH],
   art_faciale:['v','Artère faciale','A. facialis',"Elle contourne le bord ventral de la mandibule et monte sur la face.",A,VH],
   art_linguale:['v','Artère linguale','A. lingualis',"Elle irrigue la langue, entre les deux moitiés de la mandibule.",A,VH],
   art_maxillaire:['v','Artère maxillaire','A. maxillaris',"Branche profonde de la carotide externe ; chez le chat, elle forme le réseau admirable qui irrigue l'encéphale, et se termine par l'artère infra-orbitaire.",A,VH],
@@ -455,7 +466,7 @@ const REC = {
   n_alveolaire:['n','Nerf alvéolaire inférieur','N. alveolaris inferior (V3)',"Il parcourt la mandibule (sensibilité des dents inférieures) et sort par les foramens mentonniers.",NV,NH],
   n_hypoglosse:['n','Nerf hypoglosse','N. hypoglossus (XII)',"Nerf moteur de la langue.",NV,NH],
   n_lingual:['n','Nerf lingual','N. lingualis (V3)',"Sensibilité de la langue.",NV,NH],
-  plexus:['n','Plexus brachial','Plexus brachialis',"Formé par les rameaux ventraux de C6 à T1 ; il innerve le membre thoracique.",NV,NM],
+  plexus:['n','Plexus brachial','Plexus brachialis',"Formé par les rameaux ventraux de C6 à T1, avec un rameau C7 particulièrement épais ; il innerve le membre thoracique. Nerf suprascapulaire issu de C6 ; musculocutané de C6 et C7 ; axillaire de C7 ; ulnaire de C8 et T1 ; le radial est le plus gros. Le nerf médian reçoit plus de racines que chez les grands félins, ce qui serait lié à la dextérité de la patte. Réf. : Anat Histol Embryol 2020, doi:10.1111/ahe.12523 ; PLoS One 2023, doi:10.1371/journal.pone.0289660.",NV,NM],
   radial:['n','Nerf radial','N. radialis',"Extenseurs du coude, du carpe et des doigts. Sa paralysie empêche l'appui.",NV,NM],
   median:['n','Nerf médian','N. medianus',"Il longe l'artère brachiale puis innerve des fléchisseurs du carpe et des doigts.",NV,NM],
   ulnaire:['n','Nerf ulnaire','N. ulnaris',"Il passe derrière le coude, près de l'olécrâne.",NV,NM],
@@ -507,7 +518,7 @@ function layerApply(k){
 }
 
 const loader=new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
-const MV='?v=20261122d';
+const MV='?v=20261122e';
 const QUAL={standard:{url:'models/atlas-standard.glb'+MV,label:'Standard'},hd:{url:'models/atlas-hd.glb'+MV,label:'HD'}};
 let quality=(()=>{ try{ const q=localStorage.getItem('atlas-q'); if(q&&QUAL[q]) return q; }catch(e){} return (matchMedia('(pointer:fine)').matches && innerWidth>900)?'hd':'standard'; })();
 let firstLoad=true, loadToken=0;
@@ -548,6 +559,7 @@ function loadModel(q){
     else continue;
     { const pa=o.geometry.attributes.position; if(!(pa.array instanceof Float32Array)){ const f=new Float32Array(pa.count*3); for(let i=0;i<pa.count;i++){ f[3*i]=pa.getX(i); f[3*i+1]=pa.getY(i); f[3*i+2]=pa.getZ(i); } o.geometry.setAttribute('position',new THREE.BufferAttribute(f,3)); o.geometry.deleteAttribute('normal'); } }
     if(!o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+    isoPrep(o,layer,id);
     o.userData.base=o.material.color.clone(); o.userData.op=o.material.opacity; o.userData.tr=o.material.transparent;
     o.userData.id=layer+':'+id; o.userData.layer=layer;
     { const bb=id.replace(/_[dg]$/,''); if(['prostate','bulbo_uretrales','penis','testicule','deferent','uretre'].includes(bb)) o.userData.sex='m'; if(['ovaire','trompe','corne_uterine','uterus','col_uterin','vagin','vulve','uretre_f','mamelles'].includes(bb)) o.userData.sex='f'; }
@@ -609,6 +621,7 @@ function select(id,focus){
   if(selected&&listBtns[selected]) listBtns[selected].classList.remove('sel');
   selected=id; if(!id){ card.classList.remove('show'); return; }
   { const o0=byId[id]&&byId[id][0]; if(o0&&o0.userData.sex&&o0.userData.sex!==SEX){ SEX=o0.userData.sex; applySex(); } }
+  { const o0=byId[id]&&byId[id][0]; if(o0&&LAYERS[o0.userData.layer]&&!o0.visible&&(ISO.reg.size||ISO.sys.size)){ ISO.reg.clear(); ISO.sys.clear(); isoBuild(); applyVis(); } }
   const isSec=/^z:/.test(id); if(isSec&&!SEC.active) enterSection(false); if(!isSec&&SEC.active) exitSection(false);
   const isSk=/^(x|y):/.test(id); if(isSk&&!SKM.active) enterSkull(false); if(!isSk&&SKM.active) exitSkull(false);
   const L=LAYERS[id.split(':')[0]]; if(L&&L.state!==2){ L.state=2; layerApply(id.split(':')[0]); }
@@ -647,7 +660,7 @@ function doPick(cx,cy){
   const vis = SEC.active ? meshes.filter(o=>o.userData.layer==='z') : SKM.active ? meshes.filter(o=>o.userData.layer==='x'||(o.userData.layer==='y'&&SKM.lm.visible)) : meshes.filter(o=>o.visible&&LAYERS[o.userData.layer]&&LAYERS[o.userData.layer].state>0);
   const stt=o=>LAYERS[o.userData.layer]?LAYERS[o.userData.layer].state:2;
   for(const o of vis){ if(!o.geometry.boundsTree) o.geometry.computeBoundsTree(); }
-  const hits=ray.intersectObjects(vis,false);
+  const hits=ray.intersectObjects(vis,false).filter(h=>{ const ra=h.object.geometry.attributes._region; return !ra||!h.face||REGU.value[Math.round(ra.getX(h.face.a))]>0.5; });
   const mark=hits.find(h=>h.object.userData.layer==='k'||h.object.userData.layer==='y');
   const solid=mark||hits.find(h=>stt(h.object)===2 && !h.object.material.transparent);
   const any=solid||hits.find(h=>stt(h.object)===2)||hits[0];
@@ -700,7 +713,7 @@ function addListGroup(gname,ids){
     lb.appendChild(b); listBtns[id]=b; }
 }
 function skullClear(){ for(const grp of [SKM.group]){ const rm=[]; grp.traverse(o=>{ if(o.isMesh) rm.push(o); }); for(const o of rm){ o.parent.remove(o); o.geometry.dispose(); o.material.dispose(); const i=meshes.indexOf(o); if(i>=0) meshes.splice(i,1); delete byId[o.userData.id]; } } SKM.loaded=false; }
-function enterSkull(fly=true){
+function enterSkull(fly=true){ isoPanel.classList.remove("show");
   if(SKM.active) return; if(typeof SEC!=='undefined'&&SEC.active) exitSection(false);
   if(!SKM.loaded){ if(SKM.loading) return; SKM.loading=true; let ld=document.getElementById('load'); if(!ld){ ld=document.createElement('div'); ld.id='load'; document.body.appendChild(ld); } ld.textContent='Chargement du crâne détaillé…';
     skullLoad(g=>{ SKM.loading=false; skullProcess(g); document.getElementById('load')?.remove(); enterSkull(fly); }, e=>{ SKM.loading=false; const l=document.getElementById('load'); if(l) l.textContent='Impossible de charger le crâne détaillé.'; console.error(e); });
@@ -724,8 +737,81 @@ const skTint=mkChip('Teinte par os',()=>{ SKM.tint=!SKM.tint; SKM.group.traverse
 for(const b of chips.children){ if(/Liste|Vue|◐/.test(b.textContent)) b.dataset.both='1'; }
 
 let SEX='m';
-function applySex(){ for(const o of meshes){ if(o.userData.sex) o.visible=(o.userData.sex===SEX); } if(typeof sexBtn!=='undefined') sexBtn.innerHTML = SEX==='m'?'♂ Mâle':'♀ Femelle'; }
+function applySex(){ applyVis(); if(typeof sexBtn!=='undefined') sexBtn.innerHTML = SEX==='m'?'♂ Mâle':'♀ Femelle'; }
 const sexBtn=mkChip('♂ Mâle',()=>{ SEX = SEX==='m'?'f':'m'; if(selected){ const o=byId[selected]&&byId[selected][0]; if(o&&o.userData.sex&&o.userData.sex!==SEX) select(null); } applySex(); });
+// ---------- Isolement par région ou par système ----------
+const REGU={value:[1,1,1,1,1,1]};
+const REGN=['Tête','Cou','Tronc','Bassin et queue','Membres thoraciques','Membres pelviens'];
+const SYSN={sq:'Squelette',mu:'Muscles et tendons',cv:'Cardiovasculaire',re:'Respiratoire',di:'Digestif',en:'Endocrinien',ur:'Urinaire',ge:'Génital',ne:'Nerveux',ly:'Lymphatique',te:'Peau',or:'Tous les organes'};
+const SYSO={
+  re:['trachee','larynx','bronches','arbre_bronchique','lobe_accessoire','lobe_caudal','lobe_cranial','lobe_cranial_cd','lobe_cranial_cr','lobe_moyen','diaphragme'],
+  di:['oesophage','estomac','intestins','foie','pancreas','rectum','langue','gl_mandibulaire','gl_parotide','gl_zygomatique','gl_sublinguale'],
+  en:['thyroide','parathyroides','surrenales','pancreas','ovaire','testicule'],
+  ur:['reins','uretere','vessie','uretre','uretre_f'],
+  ge:['testicule','deferent','prostate','bulbo_uretrales','penis','ovaire','trompe','corne_uterine','uterus','col_uterin','vagin','vulve','mamelles'],
+  cv:['atrium','ventricule'], ne:['globe','cornee'], ly:[]};
+function regPatch(m){
+  m.onBeforeCompile=sh=>{ sh.uniforms.uReg=REGU;
+    sh.vertexShader='attribute float _region;\nflat varying int vReg;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n  vReg=int(_region+0.5);');
+    sh.fragmentShader='uniform float uReg[6];\nflat varying int vReg;\n'+sh.fragmentShader.replace('void main() {','void main() {\n  if(uReg[vReg]<0.5) discard;'); };
+  m.customProgramCacheKey=()=>'reg6';
+}
+function isoPrep(o,layer,id){
+  const b=id.replace(/_[dg]$/,''), S=new Set();
+  if(layer==='b'||layer==='k'){ S.add('sq'); if(b.startsWith('dent_')) S.add('di'); }
+  if(layer==='m') S.add('mu');
+  if(layer==='t'){ S.add('mu'); if(b.startsWith('lig_')||b==='disques'||b==='menisques') S.add('sq'); }
+  if(layer==='v') S.add('cv'); if(layer==='n') S.add('ne'); if(layer==='l') S.add('ly'); if(layer==='p') S.add('te');
+  if(layer==='o') S.add('or');
+  for(const k in SYSO) if(SYSO[k].includes(b)) S.add(k);
+  if(b==='pancreas') S.add('ly');   // volume « pancréas et rate »
+  o.userData.sys=S;
+  const ra=o.geometry.attributes._region; o.userData.regs=new Set(); o.userData.rbox=[];
+  if(ra){ regPatch(o.material); const pa=o.geometry.attributes.position, v=new THREE.Vector3();
+    o.updateWorldMatrix(true,false);
+    for(let i=0;i<ra.count;i+=1){ const r=Math.round(ra.getX(i)); o.userData.regs.add(r); if(i%7) continue; v.fromBufferAttribute(pa,i).applyMatrix4(o.matrixWorld); (o.userData.rbox[r]??=new THREE.Box3()).expandByPoint(v); } }
+  else for(let r=0;r<6;r++) o.userData.regs.add(r);
+}
+const ISO={reg:new Set(),sys:new Set(),saved:null};
+function applyVis(){
+  const R=ISO.reg,S=ISO.sys; for(let i=0;i<6;i++) REGU.value[i]=(R.size===0||R.has(i))?1:0;
+  const need=new Set();
+  for(const o of meshes){ const L=o.userData.layer; if(!LAYERS[L]) continue;
+    let v=!o.userData.sex||o.userData.sex===SEX;
+    if(v&&S.size) v=[...o.userData.sys].some(k=>S.has(k));
+    if(v&&R.size) v=[...o.userData.regs].some(r=>R.has(r));
+    o.visible=v; if(v&&S.size) need.add(L); }
+  if(S.size){ if(!ISO.saved){ ISO.saved={}; for(const k in LAYERS) ISO.saved[k]=LAYERS[k].state; }
+    for(const k in LAYERS){ const want=need.has(k)?(ISO.saved[k]||2):0; if(LAYERS[k].state!==want){ LAYERS[k].state=want; layerApply(k); } } }
+  else if(ISO.saved){ for(const k in LAYERS){ LAYERS[k].state=ISO.saved[k]; layerApply(k); } ISO.saved=null; }
+  if(typeof isoBtn!=='undefined'){ const n=R.size+S.size; isoBtn.classList.toggle('act',n>0); isoBtn.innerHTML='⊙ Isoler'+(n?' <span class="st">('+n+')</span>':''); }
+}
+function isoFrame(){
+  const box=new THREE.Box3(), R=ISO.reg;
+  for(const o of meshes){ if(!o.visible||!LAYERS[o.userData.layer]||LAYERS[o.userData.layer].state===0) continue;
+    if(o.userData.rbox.length){ o.userData.rbox.forEach((b,r)=>{ if(b&&(R.size===0||R.has(r))) box.union(b); }); } else box.expandByObject(o); }
+  if(box.isEmpty()||(!ISO.reg.size&&!ISO.sys.size)){ home(); return; }
+  const c=box.getCenter(new THREE.Vector3()), sz=box.getSize(new THREE.Vector3()).length();
+  const dir=camera.position.clone().sub(controls.target).normalize();
+  const d=Math.max(0.5, sz*0.62/Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/Math.min(1,camera.aspect));
+  flyTo(c,c.clone().add(dir.multiplyScalar(d)));
+}
+const isoPanel=document.getElementById('iso');
+function isoBuild(){
+  isoPanel.innerHTML='';
+  const mk=(title,items,set)=>{ const h=document.createElement('h3'); h.textContent=title; isoPanel.appendChild(h); const row=document.createElement('div'); row.className='row'; isoPanel.appendChild(row);
+    for(const [k,label] of items){ const b=document.createElement('button'); b.className='chip'+(set.has(k)?' on':''); b.textContent=label;
+      b.onclick=()=>{ set.has(k)?set.delete(k):set.add(k); b.classList.toggle('on',set.has(k)); if(selected){ const o=byId[selected]&&byId[selected][0]; if(o&&!o.visible) select(null); } applyVis(); if(selected&&byId[selected]&&!byId[selected][0].visible) select(null); isoFrame(); };
+      row.appendChild(b); } };
+  mk('Régions',REGN.map((n,i)=>[i,n]),ISO.reg);
+  mk('Systèmes',Object.entries(SYSN),ISO.sys);
+  const row=document.createElement('div'); row.className='row'; const r=document.createElement('button'); r.className='chip'; r.textContent='↺ Tout afficher';
+  r.onclick=()=>{ ISO.reg.clear(); ISO.sys.clear(); isoBuild(); applyVis(); home(); }; row.appendChild(r);
+  const c=document.createElement('button'); c.className='chip'; c.textContent='Fermer'; c.onclick=()=>isoPanel.classList.remove('show'); row.appendChild(c); isoPanel.appendChild(row);
+}
+isoBuild();
+const isoBtn=mkChip('⊙ Isoler',()=>isoPanel.classList.toggle('show'));
+chips.insertBefore(isoBtn,chips.firstChild);
 // ---------- Module « Coupe de peau » ----------
 const SECI={
   sk_cornee:['Couche cornée','Stratum corneum',"Couche superficielle de l'épiderme, faite de cellules mortes aplaties remplies de kératine, qui desquament en permanence. Barrière contre la déshydratation et les microbes.",'#efe1c8',1],
@@ -760,7 +846,7 @@ function secAdd(o,id){
 }
 function enterSection(fly=true){
   if(SEC.active) return; if(SKM.active) exitSkull(false);
-  SEC.active=true; for(const k in LAYERS) LAYERS[k].group.visible=false; floor.visible=false; SEC.group.visible=true; setSecChips(true);
+  isoPanel.classList.remove('show'); SEC.active=true; for(const k in LAYERS) LAYERS[k].group.visible=false; floor.visible=false; SEC.group.visible=true; setSecChips(true);
   if(fly){ const t=new THREE.Vector3(0,0.2,3.4); flyTo(t,t.clone().add(new THREE.Vector3(0.6,0.45,0.7).normalize().multiplyScalar(innerWidth/innerHeight<0.8?1.5:0.95))); }
 }
 function exitSection(fly=true){
