@@ -72,7 +72,7 @@ for pk in ['recon_thorax.pkl','recon_vn.pkl']:
         if id in ('coeur','poumon_g','poumon_d'): continue
         r = R(0.12,0.35) if id.startswith(('poumon','lobe_')) else (R(0.5,1.0) if L in('v','n') and id!='encephale' else R(0.6,1.0))
         m=simp(m,r,200); scene.add_geometry(m,node_name=L+':'+id,geom_name=L+':'+id); no+=len(m.faces)
-for pk,ratio in [('net_trunk.pkl',R(0.6,1.0)),('net_tree.pkl',R(0.55,1.0)),('net_branch.pkl',R(0.75,1.0)),('net_extra.pkl',R(0.8,1.0))]:
+for pk,ratio in [('net_trunk.pkl',R(0.6,1.0)),('net_tree.pkl',R(0.55,1.0)),('net_branch.pkl',R(0.75,1.0)),('net_extra.pkl',R(0.8,1.0)),('net_more.pkl',R(0.8,1.0))]:
     D,LAY=pickle.load(open(pk,'rb'))
     for id,ms in D.items():
         if pk=='net_branch.pkl' and id.startswith('n_optique'): continue

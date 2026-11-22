@@ -174,7 +174,7 @@ function boneInfo(id){
   if (v){ const [w,lw,dd,g]=VERT[v[1]]; const n=+v[2]; fem=true;
     fr=`Vertèbre ${w} ${v[1]}${n}`; la=`Vertebra ${lw} ${roman(n)}`; d=dd; group=g;
     if(base==='C1'){fr='Atlas (C1)'; la='Atlas'; fem=false; d="Première vertèbre cervicale, en anneau, sans corps ni processus épineux, avec de larges ailes palpables derrière le crâne. Elle s'articule avec les condyles occipitaux (flexion-extension de la tête) et avec l'axis (rotation).";}
-    if(base==='C2'){fr='Axis (C2)'; la='Axis'; fem=false; d="Deuxième vertèbre cervicale. Sa dent (processus odontoïde) s'emboîte dans l'atlas et sert de pivot à la rotation de la tête ; son long processus épineux en lame donne insertion au ligament nucal. Clinique : une instabilité atlanto-axiale comprime la moelle cervicale.";}
+    if(base==='C2'){fr='Axis (C2)'; la='Axis'; fem=false; d="Deuxième vertèbre cervicale. Sa dent (processus odontoïde) s'emboîte dans l'atlas et sert de pivot à la rotation de la tête ; son long processus épineux en lame donne insertion aux muscles du cou (le chat n'a pas de ligament nucal, contrairement au chien). Clinique : une instabilité atlanto-axiale comprime la moelle cervicale.";}
     if(base==='T1') d+=" T1 porte la première paire de côtes ; son processus épineux est parmi les plus hauts.";
     if(base==='T11') d+=" T11 est en général la vertèbre anticlinale : son processus épineux est vertical, ceux qui précèdent penchent vers l'arrière et ceux qui suivent vers l'avant. Repère radiographique.";
     if(base.startsWith('L')&&+v[2]===7) d+=" L7 s'articule avec le sacrum (jonction lombo-sacrée).";
@@ -238,7 +238,7 @@ const LMI = {
   cr_infraorb:['Foramen infra-orbitaire','Foramen infraorbitale',"Orifice du maxillaire sous l'œil, par où sortent le nerf et l'artère infra-orbitaires vers les vibrisses ; site d'anesthésie locale en dentisterie. Position approximative."],
   cr_meat:['Méat acoustique externe','Meatus acusticus externus',"Ouverture osseuse du conduit auditif, au-dessus de la bulle tympanique. Position approximative."],
   cr_crete_sag:['Crête sagittale externe','Crista sagittalis externa',"Crête médiane du toit du crâne, où s'insère le muscle temporal."],
-  cr_protub_occ:['Protubérance occipitale externe','Protuberantia occipitalis externa',"Saillie médiane de l'arrière du crâne, insertion du ligament nucal et des muscles du cou."],
+  cr_protub_occ:['Protubérance occipitale externe','Protuberantia occipitalis externa',"Saillie médiane de l'arrière du crâne, insertion des muscles du cou."],
   cr_foramen_magnum:['Foramen magnum','Foramen magnum',"Grand orifice de l'os occipital par lequel l'encéphale se continue par la moelle épinière."],
   md_coronoide:['Processus coronoïde','Processus coronoideus',"Lame dorsale de la branche mandibulaire, sur laquelle s'insère le muscle temporal, le plus puissant fermeur de la mâchoire."],
   md_condyle:['Processus condylaire','Processus condylaris',"Tête articulaire de la mandibule, logée dans la fosse mandibulaire du temporal (articulation temporo-mandibulaire)."],
@@ -271,7 +271,7 @@ const ORG = {
   foie:['Foie','Hepar',"Plus gros organe interne, divisé en plusieurs lobes, avec une vésicule biliaire. Le chat est très exposé à la lipidose hépatique en cas de jeûne prolongé.",'#7a2a22'],
   estomac:['Estomac','Gaster',"Estomac simple, situé surtout à gauche, en arrière du foie. Le modèle inclut aussi le haut du tube digestif.",'#e3b088'],
   intestins:['Intestins','Intestinum tenue et crassum',"Intestin grêle (duodénum, jéjunum, iléon), court chez ce carnivore strict, puis gros intestin (caecum, côlon, rectum).",'#e9c49a'],
-  pancreas:['Pancréas','Pancreas',"Glande digestive et endocrine, en forme de V, le long du duodénum et de l'estomac. Chez le chat, son canal s'abouche souvent avec le canal cholédoque, d'où l'association fréquente de pancréatite, cholangite et entérite (« triadite »).",'#d9c46a'],
+  pancreas:['Pancréas et rate (non séparés)','Pancreas et Lien',"Glande digestive et endocrine, en forme de V, le long du duodénum et de l'estomac. Chez le chat, son canal s'abouche souvent avec le canal cholédoque, d'où l'association fréquente de pancréatite, cholangite et entérite (« triadite »). Dans le modèle source, ce volume englobe aussi la rate, longue et plate, plaquée contre l'estomac à gauche, sans que les deux organes puissent être séparés.",'#d9c46a'],
   reins:['Reins','Renes',"Situés sous les vertèbres lombaires, le droit plus crânial que le gauche. L'insuffisance rénale chronique est très fréquente chez le chat âgé.",'#8e2b2b'],
   vessie:['Vessie','Vesica urinaria',"Réservoir de l'urine, en partie dans le bassin. Le mâle est exposé aux obstructions urétrales (cystite idiopathique, calculs).",'#efd36a'],
   vaisseaux_abdo:['Vaisseaux abdominaux','Vasa abdominalia',"Aorte abdominale, veine cave caudale et leurs branches viscérales (troncs cœliaque et mésentériques, artères et veines rénales…).",'#d8343c'],
@@ -279,7 +279,52 @@ const ORG = {
 function organInfo(id){ const [fr,la,d]=ORG[id]; const v=id==='vaisseaux_abdo'; return {fr,la,d:d+(v?" Vaisseaux issus d'un autre chat, placés ici de façon approximative.":" Organe issu d'un autre chat, placé ici de façon approximative."),sys:v?'Vaisseaux':'Organes',group:v?'Vaisseaux du tronc':'Organes abdominaux'}; }
 const RECON_NOTE=" Structure reconstruite de façon schématique et ajustée sur ce squelette : trajet, forme et dimensions sont approximatifs.";
 const A='#d23a40', VN='#3b66d6', NV='#f0d264', VT='Vaisseaux du tronc', VH='Vaisseaux de la tête et du cou', VM='Vaisseaux des membres', NC='Nerfs centraux et du tronc', NH='Nerfs de la tête', NM='Nerfs des membres', OT='Organes thoraciques';
+const LY='#45b85f', GL='Système lymphatique', TD='#ece7dc', LG='#d5dde6', GT='Tendons et ligaments';
 const REC = {
+  ln_mandibulaire:['l','Nœuds lymphatiques mandibulaires','Lnn. mandibulares',"Sous l'angle de la mandibule, de part et d'autre ; palpables. Ils drainent la face et la cavité buccale. Leur augmentation de volume est fréquente lors d'affections dentaires ou de lymphome.",LY,GL],
+  ln_retropharyngien:['l','Nœud lymphatique rétropharyngien médial','Ln. retropharyngeus medialis',"Profond, dorsal au pharynx : il collecte toute la lymphe de la tête avant le conduit trachéal. Non palpable normalement.",LY,GL],
+  ln_parotidien:['l','Nœud lymphatique parotidien','Ln. parotideus',"Petit nœud sous la glande parotide, en avant de la base de l'oreille.",LY,GL],
+  ln_cervical_sup:['l','Nœud lymphatique cervical superficiel (préscapulaire)','Lnn. cervicales superficiales',"Crânial à l'épaule, sous les muscles ; palpable. Il draine la tête, le cou et le membre thoracique.",LY,GL],
+  ln_axillaire:['l','Nœud lymphatique axillaire','Ln. axillaris proprius',"Dans l'aisselle, médial à l'épaule ; difficile à palper chez le chat sain. Il draine le membre thoracique et les mamelles crâniales.",LY,GL],
+  ln_iliaque_med:['l','Nœuds lymphatiques iliaques médiaux (sublombaires)','Lnn. iliaci mediales',"Sous les vertèbres lombaires, près de la terminaison de l'aorte : centre de drainage du bassin et des membres pelviens. Recherchés à l'échographie lors du bilan d'extension d'une tumeur.",LY,GL],
+  ln_inguinal_sup:['l','Nœud lymphatique inguinal superficiel','Lnn. inguinales superficiales',"Dans le pli de l'aine ; palpable chez le chat maigre. Il draine les mamelles caudales, l'appareil génital externe et la paroi abdominale ventrale.",LY,GL],
+  ln_popliteal:['l','Nœud lymphatique poplité','Ln. popliteus superficialis',"Derrière le genou, dans la graisse entre les muscles biceps fémoral et semi-tendineux ; facilement palpable. Premier nœud examiné lors d'une suspicion de lymphome.",LY,GL],
+  vx_lymph:['l','Vaisseaux lymphatiques','Vasa lymphatica',"Collecteurs qui conduisent la lymphe des tissus vers les nœuds, puis vers les grands troncs. Tracés schématiques des principales voies de drainage.",'#8fdc9a',GL],
+  vx_lymph_centraux:['l','Troncs lymphatiques','Trunci lymphatici',"Tronc intestinal (de l'intestin vers la citerne du chyle) et collecteurs des nœuds thoraciques.",'#8fdc9a',GL],
+  citerne_chyle:['l','Citerne du chyle','Cisterna chyli',"Dilatation dorsale à l'aorte, sous les premières vertèbres lombaires : elle reçoit la lymphe de l'arrière du corps et des intestins, chargée de graisses (le chyle).",'#a6e3b0',GL],
+  conduit_thoracique:['l','Conduit thoracique','Ductus thoracicus',"Il remonte de la citerne du chyle le long de l'aorte et se jette dans le système veineux à l'entrée du thorax, à gauche. Clinique : sa lésion, ou une gêne au retour veineux (insuffisance cardiaque), provoque un chylothorax, épanchement laiteux plus fréquent chez le chat que chez le chien.",'#8fdc9a',GL],
+  ln_tracheobronchiques:['l','Nœuds lymphatiques trachéobronchiques','Lnn. tracheobronchales',"Autour de la bifurcation de la trachée ; ils drainent les poumons. Leur augmentation se voit à la radiographie.",LY,GL],
+  ln_mediastinaux:['l','Nœuds lymphatiques médiastinaux crâniaux','Lnn. mediastinales craniales',"Dans le médiastin crânial : siège du lymphome médiastinal du jeune chat, souvent associé au FeLV.",LY,GL],
+  ln_sternal:['l','Nœud lymphatique sternal crânial','Ln. sternalis cranialis',"Sur la face dorsale du sternum ; il draine la paroi thoracique et la cavité abdominale crâniale.",LY,GL],
+  ln_jejunaux:['l','Nœuds lymphatiques jéjunaux (mésentériques)','Lnn. jejunales',"Dans le mésentère, à la racine de l'intestin grêle ; volumineux chez le chat. Ils grossissent lors d'entéropathie chronique et de lymphome digestif, fréquent chez le chat âgé.",LY,GL],
+  ln_coliques:['l','Nœuds lymphatiques coliques','Lnn. colici',"Le long du côlon ; ils drainent le gros intestin.",LY,GL],
+  thymus:['l','Thymus','Thymus',"Organe lymphoïde du médiastin crânial où mûrissent les lymphocytes T. Volumineux chez le chaton, il régresse chez l'adulte : il est représenté ici comme chez un jeune chat.",'#9fd6a8',GL],
+  tonsilles:['l','Tonsilles palatines','Tonsillae palatinae',"Amygdales logées dans les parois latérales de l'oropharynx ; elles s'enflamment lors des infections respiratoires hautes.",LY,GL],
+  t_calcaneen:['t',"Tendon calcanéen commun (tendon d'Achille)",'Tendo calcaneus communis',"Il réunit les tendons du gastrocnémien, du fléchisseur superficiel des doigts, du biceps fémoral et du semi-tendineux jusqu'à la tubérosité calcanéenne : il étend le jarret. Sa rupture, ou la neuropathie du chat diabétique, donne une démarche plantigrade.",TD,GT],
+  t_patellaire:['t','Ligament patellaire','Ligamentum patellae',"Prolongement du tendon du quadriceps, de la patella à la tubérosité tibiale ; on y teste le réflexe patellaire.",TD,GT],
+  t_quadriceps:['t','Tendon du muscle quadriceps fémoral','Tendo m. quadricipitis femoris',"Il englobe la patella et transmet la force du quadriceps, principal extenseur du genou.",TD,GT],
+  t_triceps:['t','Tendon du muscle triceps brachial','Tendo m. tricipitis brachii',"Il s'insère sur l'olécrâne : extension du coude, indispensable à l'appui ; réflexe tricipital.",TD,GT],
+  t_biceps:['t','Tendon du muscle biceps brachial','Tendo m. bicipitis brachii',"Il naît du tubercule supraglénoïdien de la scapula, glisse dans le sillon intertuberculaire de l'humérus et s'insère sur le radius et l'ulna : flexion du coude ; réflexe bicipital.",TD,GT],
+  t_flechisseurs_m:['t','Tendons fléchisseurs des doigts (main)','Tendines mm. flexorum digitorum',"Tendons des fléchisseurs superficiel et profond, à la face palmaire, jusqu'à chaque doigt ; le fléchisseur profond fait sortir la griffe. Tracés d'après les phalanges réelles.",TD,GT],
+  t_extenseurs_m:['t','Tendons extenseurs des doigts (main)','Tendines mm. extensorum digitorum',"À la face dorsale, jusqu'à la phalange distale ; avec les ligaments élastiques dorsaux, ils maintiennent la griffe rétractée.",TD,GT],
+  t_flechisseurs_p:['t','Tendons fléchisseurs des doigts (pied)','Tendines mm. flexorum digitorum',"Tendons des fléchisseurs, à la face plantaire, jusqu'à chaque doigt. Tracés d'après les phalanges réelles.",TD,GT],
+  t_extenseurs_p:['t','Tendons extenseurs des doigts (pied)','Tendines mm. extensorum digitorum',"À la face dorsale du pied, jusqu'à la phalange distale de chaque doigt.",TD,GT],
+  lig_croise_cranial:['t','Ligament croisé crânial','Lig. cruciatum craniale',"Dans le genou, du condyle latéral du fémur à l'aire intercondylaire crâniale du tibia : il empêche le tibia de glisser vers l'avant. Sa rupture existe chez le chat, souvent en surpoids, mais reste moins fréquente que chez le chien. Position schématique.",LG,GT],
+  lig_croise_caudal:['t','Ligament croisé caudal','Lig. cruciatum caudale',"Du condyle médial du fémur à l'aire intercondylaire caudale du tibia ; il croise le précédent. Position schématique.",LG,GT],
+  lig_collat_genou:['t','Ligaments collatéraux du genou','Ligg. collateralia genus',"Médial (fémur–tibia) et latéral (fémur–tête de la fibula) : ils stabilisent le genou sur les côtés.",LG,GT],
+  menisques:['t','Ménisques','Menisci',"Deux croissants fibrocartilagineux entre les condyles fémoraux et le plateau tibial : ils amortissent et répartissent la charge. Position schématique.",'#cfe1ee',GT],
+  lig_collat_coude:['t','Ligaments collatéraux du coude','Ligg. collateralia cubiti',"Ils relient les épicondyles de l'humérus au radius et à l'ulna et maintiennent le coude.",LG,GT],
+  lig_tete_femorale:['t','Ligament de la tête du fémur','Lig. capitis ossis femoris',"Petit ligament intra-articulaire, de la tête fémorale à l'acétabulum ; il se rompt lors des luxations de la hanche.",LG,GT],
+  lig_supra_epineux:['t','Ligament supra-épineux','Lig. supraspinale',"Il relie le sommet des processus épineux de T1 au sacrum. Le chat n'a pas de ligament nucal, contrairement au chien.",LG,GT],
+  disques:['t','Disques intervertébraux','Disci intervertebrales',"Entre les corps vertébraux, de C2–C3 à L7–S1 : un noyau gélatineux entouré d'un anneau fibreux. Les hernies discales existent chez le chat, surtout âgé, mais sont rares par rapport au chien. Positions mesurées sur les vertèbres de ce squelette.",'#9fc3e6',GT],
+  thyroide:['o','Glande thyroïde','Glandula thyroidea',"Deux lobes séparés, de part et d'autre de la trachée, sous le larynx (pas d'isthme chez le chat). Clinique : l'hyperthyroïdie est la maladie endocrinienne la plus fréquente du chat âgé ; on palpe alors un nodule qui glisse le long de la trachée.",'#b5523b','Glandes endocrines'],
+  parathyroides:['o','Glandes parathyroïdes','Glandulae parathyroideae',"Minuscules glandes accolées à la thyroïde, qui règlent le calcium sanguin ; à préserver lors d'une thyroïdectomie (risque d'hypocalcémie).",'#d9905a','Glandes endocrines'],
+  surrenales:['o','Glandes surrénales','Glandulae adrenales',"Petites glandes près du pôle crânial de chaque rein (cortisol, aldostérone, adrénaline). Clinique : l'hyperaldostéronisme primaire (syndrome de Conn) cause hypertension et hypokaliémie chez le chat âgé.",'#d9a54a','Glandes endocrines'],
+  gl_mandibulaire:['o','Glande salivaire mandibulaire','Glandula mandibularis',"Glande ovale à l'angle de la mandibule, entre les veines maxillaire et linguofaciale ; palpable, à ne pas confondre avec le nœud lymphatique mandibulaire.",'#e2b48c','Tête et cou'],
+  gl_parotide:['o','Glande salivaire parotide','Glandula parotis',"Sous la base de l'oreille ; son canal s'ouvre dans la bouche en regard de la carnassière supérieure.",'#e2b48c','Tête et cou'],
+  langue:['o','Langue','Lingua',"Couverte de papilles cornées dirigées vers l'arrière, qui servent à la toilette et à racler la viande. Clinique : un fil peut s'enrouler à sa base (corps étranger linéaire), à rechercher en soulevant la langue.",'#d98a95','Tête et cou'],
+  diaphragme:['o','Diaphragme','Diaphragma',"Muscle en coupole entre thorax et abdomen, principal muscle de l'inspiration, innervé par les nerfs phréniques. Sa surface suit ici la face crâniale du foie et la cavité thoracique réelle. Clinique : rupture traumatique (accident, chute) avec passage des viscères dans le thorax.",'#b9545b',OT],
+
   coeur:['o','Cœur','Cor',"Situé entre la 3e et la 6e côte environ, l'apex tourné vers le sternum et vers la gauche. La cardiomyopathie hypertrophique est la maladie cardiaque la plus fréquente du chat.",'#b8323c',OT],
   poumon_g:['o','Poumon gauche','Pulmo sinister',"Deux lobes : crânial (divisé en parties crâniale et caudale) et caudal. Sa forme suit la cavité thoracique réelle de ce squelette, limitée en arrière par la surface du foie.",'#efa3ae',OT],
   poumon_d:['o','Poumon droit','Pulmo dexter',"Quatre lobes : crânial, moyen, caudal et accessoire. Sa forme suit la cavité thoracique réelle de ce squelette, limitée en arrière par la surface du foie.",'#efa3ae',OT],
@@ -374,8 +419,8 @@ const REC = {
 };
 function recInfo(id){ let r=REC[id], sd=null, base=id; if(!r){ const m=id.match(/^(.*?)_([dg])$/); base=m[1]; sd=m[2]; r=REC[base]; }
   let fr=r[1]; if(sd){ fr = /^(Veine |Artère )/.test(fr) && !fr.includes('(') ? fr+' '+SIDE[sd][1] : fr+' – côté '+SIDE[sd][0]; }
-  return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs'}[r[0]],group:r[5],color:r[4]}; }
-const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b','Repères osseux':'#37c6c0'};
+  return {fr,la:r[2],d:r[3]+RECON_NOTE,sys:{o:'Organes',v:'Vaisseaux',n:'Nerfs',l:'Lymphatique',t:'Tendons et ligaments'}[r[0]],group:r[5],color:r[4]}; }
+const SYSCOL={Squelette:'#e9e1c9',Muscles:'#d0645a',Organes:'#e3a37a',Vaisseaux:'#e5484d',Nerfs:'#f2d24b','Repères osseux':'#37c6c0',Lymphatique:'#45b85f','Tendons et ligaments':'#ece7dc'};
 
 // ---------- Scène ----------
 const canvas=document.getElementById('c');
@@ -396,6 +441,8 @@ const LAYERS={
   o:{label:'Organes',color:'#e3a37a',state:2,tri:.3,group:new THREE.Group()},
   v:{label:'Vaisseaux',color:'#e5484d',state:2,group:new THREE.Group()},
   n:{label:'Nerfs',color:'#f2d24b',state:2,group:new THREE.Group()},
+  l:{label:'Lymphatique',color:'#45b85f',state:2,group:new THREE.Group()},
+  t:{label:'Tendons',color:'#ece7dc',state:2,group:new THREE.Group()},
   k:{label:'Repères',color:'#37c6c0',state:2,group:new THREE.Group()},
 };
 for(const k in LAYERS) scene.add(LAYERS[k].group);
@@ -440,6 +487,9 @@ function loadModel(q){
       const L=info.sys; 
       if(L==='Vaisseaux') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.32,clearcoat:.7,clearcoatRoughness:.25});
       else if(L==='Nerfs' && id!=='encephale') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.55,sheen:.8,sheenColor:new THREE.Color('#fff4c8'),sheenRoughness:.5});
+      else if(L==='Lymphatique') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.4,clearcoat:.5,sheen:.3});
+      else if(L==='Tendons et ligaments') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.35,sheen:1,sheenColor:new THREE.Color('#ffffff'),sheenRoughness:.3,clearcoat:.4});
+      else if(id==='diaphragme') o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.6,transparent:true,opacity:.55,depthWrite:false,side:THREE.DoubleSide});
       else if(id.startsWith('cornee')) o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:.05,clearcoat:1,transparent:true,opacity:.45,depthWrite:false});
       else o.material=new THREE.MeshPhysicalMaterial({color:info.color,roughness:lung?.75:.45,clearcoat:lung?0:.3,transparent:lung,opacity:lung?.5:1,depthWrite:!lung}); }
     else continue;
@@ -466,7 +516,7 @@ for(const k in LAYERS){ const L=LAYERS[k]; const b=document.createElement('butto
   b.onclick=()=>{ L.state = L.tri ? (L.state+2)%3 : (L.state?0:2); layerApply(k); if(selected && !LAYERS[selected.split(':')[0]].group.visible) select(null); };
   L.btn=b; chips.appendChild(b); }
 const pbtn=document.createElement('button'); pbtn.className='chip'; pbtn.textContent='✦ Réseaux';
-pbtn.onclick=()=>{ if(SKM.active) exitSkull(false); const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.k.state=0; for(const k in L) layerApply(k); };
+pbtn.onclick=()=>{ if(SKM.active) exitSkull(false); const L=LAYERS; L.b.state=1; L.m.state=0; L.o.state=1; L.v.state=2; L.n.state=2; L.l.state=2; L.t.state=0; L.k.state=0; for(const k in L) layerApply(k); };
 chips.appendChild(pbtn);
 const qbtn=document.createElement('button'); qbtn.className='chip';
 function updateQBtn(){ qbtn.innerHTML='◐ '+QUAL[quality].label; }
@@ -480,7 +530,7 @@ document.getElementById('crx').onclick=()=>document.getElementById('credits').cl
 const listEl=document.getElementById('list'), lb=document.getElementById('lb'), q=document.getElementById('q');
 document.getElementById('lx').onclick=()=>listEl.classList.remove('open');
 const listBtns={};
-const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Muscles','Tête et cou','Organes thoraciques','Organes abdominaux','Appareil urogénital','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
+const ORDER=['Repères osseux','Tête','Dents','Colonne vertébrale','Thorax','Membre thoracique','Membre pelvien','Tendons et ligaments','Muscles','Tête et cou','Glandes endocrines','Organes thoraciques','Organes abdominaux','Appareil urogénital','Système lymphatique','Vaisseaux du tronc','Vaisseaux de la tête et du cou','Vaisseaux des membres','Nerfs centraux et du tronc','Nerfs de la tête','Nerfs des membres'];
 function natKey(id){ return id.replace(/\d+/g,n=>n.padStart(3,'0')); }
 function buildList(){
   const groups={}; for(const id in infoById){ (groups[infoById[id].group]??=[]).push(id); }
