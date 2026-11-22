@@ -507,7 +507,8 @@ function layerApply(k){
 }
 
 const loader=new GLTFLoader(); loader.setMeshoptDecoder(MeshoptDecoder);
-const QUAL={standard:{url:'models/atlas-standard.glb',label:'Standard'},hd:{url:'models/atlas-hd.glb',label:'HD'}};
+const MV='?v=20261122b';
+const QUAL={standard:{url:'models/atlas-standard.glb'+MV,label:'Standard'},hd:{url:'models/atlas-hd.glb'+MV,label:'HD'}};
 let quality=(()=>{ try{ const q=localStorage.getItem('atlas-q'); if(q&&QUAL[q]) return q; }catch(e){} return (matchMedia('(pointer:fine)').matches && innerWidth>900)?'hd':'standard'; })();
 let firstLoad=true, loadToken=0;
 function loadModel(q){
@@ -660,7 +661,7 @@ loadModel(quality);
 renderer.setAnimationLoop(()=>{ if(fly){ const k=Math.min(1,(performance.now()-fly.t0)/700), e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
   controls.target.lerpVectors(fly.ft,fly.tt,e); camera.position.lerpVectors(fly.fp,fly.tp,e); if(k>=1) fly=null; }
   controls.update(); renderer.render(scene,camera); });
-function skullLoad(ok,err){ loader.load(quality==='hd'?'models/crane-detail-hd.glb':'models/crane-detail-standard.glb',ok,undefined,err); }
+function skullLoad(ok,err){ loader.load((quality==='hd'?'models/crane-detail-hd.glb':'models/crane-detail-standard.glb')+MV,ok,undefined,err); }
 // ---------- Module « Crâne détaillé » (scanner Université d'Édimbourg) ----------
 const SKN=" Vue détaillée : scanner d'un autre chat (Université d'Édimbourg), recalé sur le crâne de l'atlas ; os et dents identifiés par transfert depuis le squelette de l'atlas, limites approximatives.";
 const SKM={group:new THREE.Group(), lm:new THREE.Group(), loaded:false, loading:false, active:false, saved:null, tint:true};
