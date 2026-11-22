@@ -88,7 +88,7 @@ for side,cond,nm in [('g',X>0,'poumon_g'),('d',X<0,'poumon_d')]:
 pickle.dump({'zd':zd,'xs':xs,'ys':ys},open('diaph.pkl','wb'))
 # --- trachea, bronchi, esophagus
 carina=np.array([0,0.44,0.79])
-out['trachee']=('o',tube([[0,0.50,1.49],[0,0.475,1.32],[0,0.45,1.13],[0,0.435,0.95],carina],0.028,0.026))
+out['trachee']=('o',tube([[0,0.532,1.49],[0,0.49,1.32],[0,0.45,1.13],[0,0.435,0.95],carina],0.028,0.026))
 out['bronches']=('o',trimesh.util.concatenate([tube([carina,[-0.05,0.43,0.75],[-0.10,0.41,0.68]],0.018,0.012),
                                               tube([carina,[0.05,0.43,0.75],[0.10,0.41,0.68]],0.018,0.012)]))
 cardia=np.array([0.024,0.514,0.411])

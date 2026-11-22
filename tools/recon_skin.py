@@ -17,6 +17,17 @@ B2={k:trimesh.util.concatenate(v) for k,v in G2.items()}
 # ---------- envelope ----------
 ec=trimesh.load('sources/feline_ecorche_dec.glb').to_geometry()
 P=[ec.sample(1500000)]+[p.sample(max(200,len(p.faces))) for p in parts]
+# structures molles reconstruites : la peau doit les englober
+EXC=('vibrisse','pavillon','truffe','coussinet','griffe','mamelle','peau')
+for f in ['net_branch.pkl','net_extra.pkl','net_more.pkl','net_trunk.pkl','net_tree.pkl','net_female.pkl']:
+    d,_=pickle.load(open(f,'rb'))
+    for k,ms in d.items():
+        if any(e in k for e in EXC): continue
+        for m in ms: P.append(m.sample(max(200,len(m.faces)//2)))
+R=pickle.load(open('recon_thorax.pkl','rb'))
+for k,v in R.items():
+    m=v[1] if isinstance(v,tuple) else v
+    P.append(m.sample(max(200,len(m.faces)//2)))
 P=np.vstack(P)
 h=0.008; lo=P.min(0)-0.06; hi=P.max(0)+0.06; shp=np.ceil((hi-lo)/h).astype(int)+1
 G=np.zeros(shp,bool); ij=np.floor((P-lo)/h).astype(int); G[ij[:,0],ij[:,1],ij[:,2]]=True

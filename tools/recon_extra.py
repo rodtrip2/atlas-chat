@@ -32,13 +32,13 @@ for s,S in [(1,'_g'),(-1,'_d')]:
 iv=np.asarray(O['intestins'].vertices); cend=iv[np.argmin(iv[:,2])]
 add('rectum','o',tube([cend,[-0.015,0.57,-0.72],[0,0.595,-0.95],[0,0.60,-1.20],[0,0.60,-1.36]],0.024,0.02))
 # ---------- larynx and hyoid apparatus ----------
-add('larynx','o',trimesh.util.concatenate([tube([[0,0.515,1.545],[0,0.505,1.515],[0,0.497,1.49]],0.036,0.03,seg=16),
-    tube([[0,0.53,1.555],[0,0.565,1.575]],0.014,0.008)]))   # epiglottis
+add('larynx','o',trimesh.util.concatenate([tube([[0,0.55,1.545],[0,0.54,1.515],[0,0.532,1.49]],0.034,0.028,seg=16),
+    tube([[0,0.565,1.555],[0,0.595,1.575]],0.013,0.008)]))   # epiglottis
 hy=[]
 for s in (1,-1):
-    hy.append(tube([[s*0.075,0.585,1.585],[s*0.065,0.53,1.585],[s*0.05,0.47,1.58],[s*0.03,0.44,1.585]],0.0045,0.004))   # stylo/epi/ceratohyoid chain
-    hy.append(tube([[s*0.012,0.44,1.585],[s*0.025,0.47,1.55],[s*0.03,0.495,1.52]],0.0035))                              # thyrohyoid
-hy.append(tube([[-0.032,0.44,1.585],[0,0.437,1.588],[0.032,0.44,1.585]],0.0045))                                     # basihyoid
+    hy.append(tube([[s*0.075,0.585,1.585],[s*0.065,0.545,1.585],[s*0.05,0.505,1.58],[s*0.03,0.48,1.585]],0.0045,0.004))   # stylo/epi/ceratohyoid chain
+    hy.append(tube([[s*0.012,0.48,1.585],[s*0.025,0.51,1.55],[s*0.03,0.53,1.52]],0.0035))                              # thyrohyoid
+hy.append(tube([[-0.032,0.48,1.585],[0,0.477,1.588],[0.032,0.48,1.585]],0.0045))                                     # basihyoid
 add('hyoide','b',trimesh.util.concatenate(hy))
 # ---------- eyes: largest sphere inscribed in each orbit ----------
 sk=np.asarray(B['crane'].vertices); tr=cKDTree(sk)

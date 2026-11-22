@@ -40,9 +40,9 @@ LN=lambda: None
 venous=lambda s: np.array([s*0.05,0.42,1.06])
 for s,S in [(1,'_g'),(-1,'_d')]:
     F=frames(S,s); sv=lambda p: np.array([p[0]*s,p[1],p[2]])
-    nodes={'ln_mandibulaire':[ell(sv([0.12,0.33,1.60]),[0.012,0.008,0.016]),ell(sv([0.10,0.315,1.635]),[0.009,0.007,0.012])],
+    nodes={'ln_mandibulaire':[ell(sv([0.11,0.46,1.66]),[0.011,0.008,0.015]),ell(sv([0.10,0.44,1.69]),[0.009,0.007,0.012])],
            'ln_retropharyngien':[ell(sv([0.04,0.57,1.50]),[0.008,0.012,0.022])],
-           'ln_parotidien':[ell(sv([0.15,0.56,1.56]),[0.006,0.006,0.010])],
+           'ln_parotidien':[ell(sv([0.125,0.60,1.565]),[0.006,0.006,0.010])],
            'ln_cervical_sup':[ell(sv([0.16,0.45,1.18]),[0.010,0.012,0.020])],
            'ln_axillaire':[ell(sv([0.12,0.30,0.98]),[0.010,0.008,0.014])],
            'ln_iliaque_med':[ell(sv([0.03,0.55,-0.56]),[0.008,0.008,0.025])],
@@ -53,7 +53,7 @@ for s,S in [(1,'_g'),(-1,'_d')]:
         for m in ms: add(k+S,'l',m)
     # drainage vessels
     lv=[]
-    lv.append(tube([sv([0.12,0.33,1.60]),sv([0.08,0.45,1.55]),sv([0.04,0.57,1.50])],0.0022))
+    lv.append(tube([sv([0.11,0.46,1.66]),sv([0.08,0.52,1.57]),sv([0.04,0.57,1.50])],0.0022))
     lv.append(tube([sv([0.04,0.56,1.49]),sv([0.032,0.49,1.30]),sv([0.03,0.47,1.15]),venous(s)],0.0026))   # tracheal duct
     lv.append(tube([sv([0.16,0.45,1.18]),sv([0.10,0.43,1.10]),venous(s)],0.0024))
     lv.append(tube([sv([0.12,0.30,0.98]),sv([0.08,0.38,1.04]),venous(s)],0.0024))
@@ -138,13 +138,13 @@ for a,b in zip(order[:-1],order[1:]):
     discs.append(tube([c-d*th/2,c+d*th/2],r,r,seg=16))
 add('disques','t',trimesh.util.concatenate(discs))
 # =================== GLANDS & OTHER ORGANS ===================
-add('thyroide','o',trimesh.util.concatenate([ell([s*0.03,0.485,1.38],[0.006,0.008,0.025]) for s in (1,-1)]))
-add('parathyroides','o',trimesh.util.concatenate([ell([s*0.036,0.49,1.40],[0.0032,0.0032,0.0032],sub=1) for s in (1,-1)]))
+add('thyroide','o',trimesh.util.concatenate([ell([s*0.031,0.50,1.38],[0.006,0.008,0.025]) for s in (1,-1)]))
+add('parathyroides','o',trimesh.util.concatenate([ell([s*0.037,0.505,1.40],[0.0032,0.0032,0.0032],sub=1) for s in (1,-1)]))
 add('surrenales','o',trimesh.util.concatenate([ell([0.05,0.53,0.07],[0.006,0.006,0.012]),ell([-0.055,0.52,0.13],[0.006,0.006,0.012])]))
 for s,S in [(1,'_g'),(-1,'_d')]:
-    add('gl_mandibulaire'+S,'o',ell([s*0.11,0.45,1.52],[0.02,0.018,0.024]))
-    add('gl_parotide'+S,'o',ell([s*0.15,0.55,1.555],[0.012,0.035,0.024]))
-tg=[[0,0.42,1.58],[0,0.37,1.66],[0,0.33,1.76],[0,0.315,1.86],[0,0.31,1.90]]
+    add('gl_mandibulaire'+S,'o',ell([s*0.10,0.505,1.59],[0.016,0.016,0.022]))
+    add('gl_parotide'+S,'o',ell([s*0.132,0.58,1.585],[0.010,0.03,0.02]))
+tg=[[0,0.47,1.58],[0,0.41,1.66],[0,0.35,1.76],[0,0.32,1.86],[0,0.31,1.90]]
 t_=tube(tg,0.026,0.012,seg=16); t_=flatten(t_,spline(tg,0.005),1,0.5); add('langue','o',t_)
 # diaphragm sheet from the computed diaphragm surface
 D=pickle.load(open('diaph.pkl','rb')); zd,xs,ys=D['zd'],D['xs'],D['ys']
